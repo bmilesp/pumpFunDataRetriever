@@ -7,8 +7,15 @@ const { chromium } = require("playwright");
   const context = await browser.newContext();
   const page = await context.newPage();
 
-  // File to store WebSocket data
-  const outputFile = "/usr/src/app/output/pump_fun_websocket_data.txt";
+  // Output files for categorized messages
+  const tradeCreatedFile = "/usr/src/app/output/tradeCreated.txt";
+  const newCoinCreatedFile = "/usr/src/app/output/newCoinCreated.txt";
+
+  // Ensure output directory exists
+  const outputDirectory = "/usr/src/app/output";
+  if (!fs.existsSync(outputDirectory)) {
+    fs.mkdirSync(outputDirectory, { recursive: true });
+  }
 
   // Intercept WebSocket connections
   page.on("websocket", (ws) => {
@@ -16,15 +23,29 @@ const { chromium } = require("playwright");
 
     // Listen for WebSocket messages
     ws.on("framereceived", (frame) => {
-      console.log(`Received: ${frame.payload}`);
-      // Save message to file
-      fs.appendFileSync(outputFile, `Received: ${frame.payload}\n`);
-    });
-
-    ws.on("framesent", (frame) => {
-      console.log(`Sent: ${frame.payload}`);
-      // Save message to file
-      fs.appendFileSync(outputFile, `Sent: ${frame.payload}\n`);
+      try {
+        // Check for "tradeCreated" and "newCoinCreated"
+        var input = frame.payload;
+        console.log("INPUT: ", input);
+        if (frame.payload.includes("tradeCreated")) {
+          //console.log(`tradeCreated message: ${frame.payload}`);
+          var jsonSplit = input.split('[', 2);
+          console.log('payload: ',jsonSplit);
+          var payload = JSON.parse("["+jsonSplit[1]);
+          console.log('payload: ',jsonSplit);
+          fs.appendFileSync(tradeCreatedFile, JSON.stringify(payload, null, 2) + "\n");
+        } else if (frame.payload.includes("newCoinCreated")) {
+          //console.log(`newCoinCreated message: ${frame.payload}`);
+          var jsonSplit = input.split('{', 2);
+          var payload = JSON.parse("{"+jsonSplit[1]);
+          console.log('payload: ',jsonSplit);
+          fs.appendFileSync(newCoinCreatedFile, JSON.stringify(payload, null, 2) + "\n");
+        }
+      } catch (error) {
+        console.log(error)  
+        // Handle non-JSON payloads or errors gracefully
+        //console.error("Failed to parse WebSocket message:", frame.payload);
+      }
     });
   });
 
