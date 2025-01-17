@@ -1,7 +1,11 @@
 {
   "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.13.7/.schema/devbox.schema.json",
   "packages": [
-    "python@3.10"
+    "python@3.10",
+    "nodejs@latest",
+    "virt-what@latest",
+    "docker@latest",
+    "docker-compose@latest"
   ],
   "env": {
     "VENV_DIR": ".venv"
