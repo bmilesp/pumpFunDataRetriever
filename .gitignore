@@ -2,3 +2,4 @@ scraper-output/*
 node_modules/*
 node_modules
 scraper-output
+fetcher-output
