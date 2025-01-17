@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   scraper:
-    image: pump-fun-scraper:latest # Use the image built locally
+    image: pump-fun-scraper:latest
     build:
       context: ./docker-pump-fun-scraper # The current directory where the Dockerfile is located
       dockerfile: Dockerfile
@@ -19,6 +19,20 @@ services:
         max-file: "3"
     volumes:
       - ./scraper-output:/usr/src/app/output # Map the local directory to the container's output folder
+    networks:
+      - pump-network
+  fetch-replies:
+    image: pump-fun-reply-fetcher:latest
+    build:
+      context: ./docker-pump-fun-reply-fetcher
+      dockerfile: Dockerfile
+    volumes:
+      - ./fetcher-output:/usr/src/app/output
+    networks:
+      - pump-network
+    ports:
+      - "3000:3000" # Expose the API fetcher on port 3000 for debugging
+
 networks:
-  default:
+  pump-network:
     driver: bridge
