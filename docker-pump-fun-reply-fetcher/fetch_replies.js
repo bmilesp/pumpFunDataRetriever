@@ -15,7 +15,7 @@ if (!fs.existsSync(outputDirectory)) {
 app.use(express.json());
 
 // Endpoint to handle incoming mint requests
-app.post("/fetch-replies", async (req, res) => {
+app.post("/fetch-replies:3000", async (req, res) => {
   const { mint } = req.body;
 
   if (!mint) {

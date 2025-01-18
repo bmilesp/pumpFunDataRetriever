@@ -6,11 +6,6 @@ services:
     build:
       context: ./docker-pump-fun-scraper # The current directory where the Dockerfile is located
       dockerfile: Dockerfile
-    #environment:
-    #  - S3_BUCKET_NAME=your-bucket-name # Replace with your S3 bucket name
-    #  - AWS_ACCESS_KEY_ID=your-access-key-id # Replace with your AWS Access Key
-    #  - AWS_SECRET_ACCESS_KEY=your-secret-access-key # Replace with your AWS Secret Key
-    #  - AWS_REGION=us-east-1 # Replace with your AWS Region
     restart: always
     logging:
       driver: "json-file"

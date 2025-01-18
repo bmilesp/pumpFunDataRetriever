@@ -1,5 +1,7 @@
 const fs = require("fs");
 const { chromium } = require("playwright");
+const fetcherEndpoint = "http://fetch-replies:3000";
+const fetch = require("node-fetch");
 
 function bufferToString(buffer) {
   const decoder = new TextDecoder(); // Assuming UTF-8 encoding

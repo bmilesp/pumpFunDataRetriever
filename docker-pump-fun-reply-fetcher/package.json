@@ -4,7 +4,8 @@
     "description": "A WebSocket reply fetcher for Pump.fun running in Docker.",
     "main": "fetch_replies.js",
     "dependencies": {
-      "playwright": "^1.35.0"
+      "express" :"4.21.2",
+      "node-fetch": "^2.6.6"
     },
     "scripts": {
       "start": "node fetch_replies.js"
