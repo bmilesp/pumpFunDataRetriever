@@ -1,6 +1,6 @@
 const fs = require("fs");
 const { chromium } = require("playwright");
-const fetcherEndpoint = "http://fetch-replies:3000";
+const fetcherEndpoint = "http://fetch_replies:3000";
 const fetch = require("node-fetch");
 
 function bufferToString(buffer) {

@@ -3,6 +3,7 @@ version: "3.9"
 services:
   scraper:
     image: pump-fun-scraper:latest
+    container_name: scraper
     build:
       context: ./docker-pump-fun-scraper # The current directory where the Dockerfile is located
       dockerfile: Dockerfile
@@ -18,6 +19,7 @@ services:
       - pump-network
   fetch-replies:
     image: pump-fun-reply-fetcher:latest
+    container_name: fetch_replies
     build:
       context: ./docker-pump-fun-reply-fetcher
       dockerfile: Dockerfile

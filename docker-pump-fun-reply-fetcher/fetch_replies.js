@@ -4,6 +4,7 @@ const fetch = require("node-fetch");
 
 const app = express();
 const PORT = 3000;
+console.log("HELLOOOOOO");
 
 // Ensure the output directory exists
 const outputDirectory = "/usr/src/app/output";
@@ -14,9 +15,11 @@ if (!fs.existsSync(outputDirectory)) {
 // Middleware to parse JSON bodies
 app.use(express.json());
 
+
 // Endpoint to handle incoming mint requests
-app.post("/fetch-replies:3000", async (req, res) => {
+app.post("/", async (req, res) => {
   const { mint } = req.body;
+  console.log(req.body);
 
   if (!mint) {
     return res.status(400).send({ error: "Mint value is required" });
