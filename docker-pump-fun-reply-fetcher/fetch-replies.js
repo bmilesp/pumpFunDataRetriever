@@ -24,52 +24,37 @@ const PORT = 3000;
     let hasMore = true;
     let formattedData = [];
 
-    try {
-      while (hasMore) {
-        // Record the current timestamp
-        const timestamp = new Date();
 
-        // Add or update the last queried timestamp for this mint
-        await lastQueriedCollection.updateOne(
-          { _id: mint },
-          { $set: { timestamp } },
-          { upsert: true }
-        );
-        console.log(`Updated last queried timestamp for mint: ${mint}`);
+    while (hasMore) {
 
-        const url = `https://frontend-api-v2.pump.fun/replies/${mint}?limit=${limit}&offset=${offset}`;
-        console.log(`Fetching: ${url}`);
+      const url = `https://frontend-api-v2.pump.fun/replies/${mint}?limit=${limit}&offset=${offset}`;
+      console.log(`Fetching: ${url}`);
 
-        const response = await fetch(url);
-        if (!response.ok) {
-          console.error(`Failed to fetch data. Status: ${response.status}`);
-          break;
-        }
-        const data = await response.json();
-
-        // Check if data.replies exists and is not empty
-        if (data.replies && Array.isArray(data.replies) && data.replies.length > 0) {
-          formattedData.push(data.replies.map((reply) => ({
-            _id: reply.signature, // Use signature as the _id
-            mint,
-            ...reply,
-          })));
-          
-        } else {
-          const errorMessage = `No replies found for mint: ${mint} at offset: ${offset}`;
-          res.send({error: errorMessage, data: formattedData});
-          console.log(errorMessage);
-        }
-
-        // Check if there are more replies
-        hasMore = data.replies && data.replies.length === limit;
-        offset += limit;
+      const response = await fetch(url);
+      if (!response.ok) {
+        console.error(`Failed to fetch data. Status: ${response.status}`);
+        break;
       }
-      res.send({ data: formattedData });
-    } catch (error) {
-      console.error(`Error fetching replies for mint: ${mint}`, error);
-      res.status(500).send({ error: `Failed to fetch replies for mint: ${mint}` });
+      const data = await response.json();
+      // Check if data.replies exists and is not empty
+      if (data.replies && Array.isArray(data.replies) && data.replies.length > 0) {
+        formattedData.push(data.replies.map((reply) => ({
+          _id: reply.signature, // Use signature as the _id
+          mint,
+          ...reply,
+        })));
+      } else {
+        const errorMessage = `No replies found for mint: ${mint} at offset: ${offset}`;
+        return res.send({error: errorMessage, data: formattedData});
+      }
+
+      // Check if there are more replies
+      hasMore = data.replies && data.replies.length === limit;
+      offset += limit;
     }
+    console.log(`FORMATTED DATA OFFSET: ${offset}: `, formattedData);
+    res.json(formattedData);
+    
   });
 
   // Start the server
