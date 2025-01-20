@@ -34,7 +34,7 @@ const tokenCollectionName = "tokens";
       }
 
       const data = await response.json();
-      console.log("Search Results:", data);
+      //console.log("Search Results:", data);
 
       // Save each result to MongoDB
       for (const token of data.results || []) {

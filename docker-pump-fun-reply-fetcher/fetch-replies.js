@@ -63,6 +63,7 @@ const databaseName = "pumpfun";
         // Check if data.replies exists and is not empty
         if (data.replies && Array.isArray(data.replies) && data.replies.length > 0) {
           const formattedData = data.replies.map((reply) => ({
+            _id: reply.signature, // Use signature as the _id
             mint,
             ...reply,
           }));

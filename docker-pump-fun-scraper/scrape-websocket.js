@@ -41,16 +41,16 @@ function bufferToString(buffer) {
           const jsonSplit = input.split("[", 2);
           let payload = JSON.parse("[" + jsonSplit[1]);
           payload = payload[1]
-          //console.log("Parsed tradeCreated payload:", payload[1]);
           try {
-            await transactionCollection.insertOne(payload);
+            await transactionCollection.insertOne({ _id: payload.signature, ...payload });
           } catch (error) {
             console.error("Failed to insert tradeCreated payload into MongoDB:", error);  
           }
-          console.log('payload.mint: ' + payload.mint);
+          //console.log('payload.mint: ' + payload.mint);
           if (payload.mint) {
             console.log(`Checking if token with mint '${payload.mint}' exists in MongoDB.`);
             const existingToken = await tokenCollection.findOne({ mint: payload.mint });
+            console.log("existingToken Found: " + existingToken);
             if (!existingToken) {
               console.log(`Token with mint '${payload.mint}' not found. Sending mint to token-search.`);
               try {
@@ -72,7 +72,7 @@ function bufferToString(buffer) {
           const jsonSplit = bufferToString(input).split("{", 2);
           const payload = JSON.parse("{" + jsonSplit[1]);
           //console.log("Parsed newCoinCreated payload:", payload);
-          await tokenCollection.insertOne(payload);
+          await tokenCollection.insertOne({ _id: payload.mint, ...payload });
           if (payload.mint) {
             console.log(`Sending mint to fetch-replies: ${payload.mint}`);
             try {
