@@ -11,10 +11,10 @@ COPY package*.json ./
 RUN npm install
 
 # Copy the script to the working directory
-COPY fetch_replies.js .
+COPY fetch-replies.js .
 
 # Create the output directory
 RUN mkdir -p /usr/src/app/output
 
 # Set the default command to run the script
-CMD ["node", "fetch_replies.js"]
+CMD ["node", "fetch-replies.js"]

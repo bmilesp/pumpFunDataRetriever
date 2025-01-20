@@ -2,13 +2,14 @@
     "name": "pump-fun-websocket-scraper",
     "version": "1.0.0",
     "description": "A WebSocket scraper for Pump.fun running in Docker.",
-    "main": "scrape_websocket.js",
+    "main": "scrape-websocket.js",
     "dependencies": {
       "playwright": "^1.35.0",
-      "node-fetch": "^2.6.6"
+      "node-fetch": "^2.6.6",
+      "mongodb": "^4.1.1"
     },
     "scripts": {
-      "start": "node scrape_websocket.js"
+      "start": "node scrape-websocket.js"
     },
     "author": "Your Name",
     "license": "MIT"

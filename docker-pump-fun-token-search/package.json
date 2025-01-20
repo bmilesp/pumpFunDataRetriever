@@ -1,15 +1,15 @@
 {
     "name": "pump-fun-websocket-scraper",
     "version": "1.0.0",
-    "description": "A WebSocket reply fetcher for Pump.fun running in Docker.",
-    "main": "fetch-replies.js",
+    "description": "A pump.fun api token search running in Docker.",
+    "main": "token-search.js",
     "dependencies": {
       "express" :"4.21.2",
       "node-fetch": "^2.6.6",
       "mongodb": "^4.1.1"
     },
     "scripts": {
-      "start": "node fetch-replies.js"
+      "start": "node token-search.js"
     },
     "author": "Your Name",
     "license": "MIT"

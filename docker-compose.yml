@@ -5,31 +5,58 @@ services:
     image: pump-fun-scraper:latest
     container_name: scraper
     build:
-      context: ./docker-pump-fun-scraper # The current directory where the Dockerfile is located
+      context: ./docker-pump-fun-scraper
       dockerfile: Dockerfile
     restart: always
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-    volumes:
-      - ./scraper-output:/usr/src/app/output # Map the local directory to the container's output folder
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/pumpfun
+    depends_on:
+      - mongodb
     networks:
       - pump-network
+    volumes:
+      - ./scraper-output:/usr/src/app/output # Map the local directory to the container's output folder
+
+  token-search:
+    image: pump-fun-token-search:latest
+    container_name: token-search
+    build:
+      context: ./docker-pump-fun-token-search
+      dockerfile: Dockerfile
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/pumpfun
+    ports:
+      - "3001:3001"
+    networks:
+      - pump-network
+    depends_on:
+      - mongodb
+
   fetch-replies:
     image: pump-fun-reply-fetcher:latest
-    container_name: fetch_replies
+    container_name: fetch-replies
     build:
       context: ./docker-pump-fun-reply-fetcher
       dockerfile: Dockerfile
-    volumes:
-      - ./fetcher-output:/usr/src/app/output
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/pumpfun
+    depends_on:
+      - mongodb
     networks:
       - pump-network
     ports:
-      - "3000:3000" # Expose the API fetcher on port 3000 for debugging
+      - "3000:3000"
 
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    networks:
+      - pump-network
+    volumes:
+      - ./data/mongodb:/data/db
 networks:
   pump-network:
     driver: bridge
