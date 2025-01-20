@@ -1,23 +1,10 @@
 const express = require("express");
 const fetch = require("node-fetch");
-const { MongoClient } = require("mongodb");
 
 const app = express();
 const PORT = 3000;
 
-// MongoDB connection settings
-const mongoUri = process.env.MONGO_URI || "mongodb://mongodb:27017";
-const databaseName = "pumpfun";
-
 (async () => {
-  // Connect to MongoDB
-  const client = new MongoClient(mongoUri);
-  await client.connect();
-  const db = client.db(databaseName);
-  const replyCollection = db.collection("replies");
-  const lastQueriedCollection = db.collection("replies_last_queried_at");
-
-  console.log("Connected to MongoDB");
 
   // Middleware to parse JSON bodies
   app.use(express.json());
@@ -35,6 +22,7 @@ const databaseName = "pumpfun";
     const limit = 1000;
     let offset = 0;
     let hasMore = true;
+    let formattedData = [];
 
     try {
       while (hasMore) {
@@ -57,29 +45,27 @@ const databaseName = "pumpfun";
           console.error(`Failed to fetch data. Status: ${response.status}`);
           break;
         }
-
         const data = await response.json();
 
         // Check if data.replies exists and is not empty
         if (data.replies && Array.isArray(data.replies) && data.replies.length > 0) {
-          const formattedData = data.replies.map((reply) => ({
+          formattedData.push(data.replies.map((reply) => ({
             _id: reply.signature, // Use signature as the _id
             mint,
             ...reply,
-          }));
-          await replyCollection.insertMany(formattedData);
-          console.log(`Inserted ${formattedData.length} replies into MongoDB for mint: ${mint}`);
+          })));
+          
         } else {
-          console.log(`No replies found for mint: ${mint} at offset: ${offset}`);
+          const errorMessage = `No replies found for mint: ${mint} at offset: ${offset}`;
+          res.send({error: errorMessage, data: formattedData});
+          console.log(errorMessage);
         }
 
         // Check if there are more replies
         hasMore = data.replies && data.replies.length === limit;
         offset += limit;
       }
-
-      console.log(`All replies fetched successfully for mint: ${mint}`);
-      res.send({ status: "success", message: `Replies fetched for mint: ${mint}` });
+      res.send({ data: formattedData });
     } catch (error) {
       console.error(`Error fetching replies for mint: ${mint}`, error);
       res.status(500).send({ error: `Failed to fetch replies for mint: ${mint}` });
@@ -91,10 +77,4 @@ const databaseName = "pumpfun";
     console.log(`API fetcher listening on port ${PORT}`);
   });
 
-  // Handle shutdown
-  process.on("SIGINT", async () => {
-    console.log("Closing MongoDB connection...");
-    await client.close();
-    process.exit();
-  });
 })();

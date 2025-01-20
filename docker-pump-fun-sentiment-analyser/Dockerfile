@@ -11,10 +11,10 @@ COPY package*.json ./
 RUN npm install
 
 # Copy the script to the working directory
-COPY token-search.js .
+COPY sentiment-analyser.js .
 
 # Create the output directory
 RUN mkdir -p /usr/src/app/output
 
 # Set the default command to run the script
-CMD ["node", "token-search.js"]
+CMD ["node", "sentiment-analyser.js"]

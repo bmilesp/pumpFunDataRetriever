@@ -1,0 +1,141 @@
+const fs = require("fs");
+const { chromium } = require("playwright");
+const fetch = require("node-fetch");
+const { MongoClient } = require("mongodb");
+
+const fetcherEndpoint = "http://fetch-replies:3000";
+const searchEndpoint = "http://token-search:3001";
+const sentimentEndpoint = "http://sentiment-analyser:3002";
+const dataCleaner = "http://data-cleaner:3003";
+const mongoUri = process.env.MONGO_URI || "mongodb://mongodb:27017";
+const databaseName = "pumpfun";
+
+function bufferToString(buffer) {
+  const decoder = new TextDecoder(); // Assuming UTF-8 encoding
+  return decoder.decode(buffer); 
+}
+
+(async () => {
+  // Connect to MongoDB
+  const client = new MongoClient(mongoUri);
+  await client.connect();
+  const db = client.db(databaseName);
+  const tokenCollection = db.collection("tokens");
+  const transactionCollection = db.collection("transactions");
+  const replyCollection = db.collection("replies");
+  const otherFile = "/usr/src/app/output/uncategorizedWebsocketData.txt";
+
+  // Launch browser
+  const browser = await chromium.launch({ headless: true }); // Set to true to hide the browser
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  let payload = {};
+  let replies = [];
+
+  // Intercept WebSocket connections
+  page.on("websocket", (ws) => {
+    console.log(`WebSocket opened: ${ws.url()}`);
+
+    // Listen for WebSocket messages
+    ws.on("framereceived", async (frame) => {
+      const input = frame.payload;
+
+      if (frame.payload.includes("tradeCreated")) {
+        // Parse tradeCreated payload and insert into MongoDB
+
+        payload = await fetch (dataCleaner, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ data: frame.payload })
+        });
+        try {
+          await transactionCollection.insertOne({ _id: payload.signature, ...payload });
+        } catch (error) {
+          console.error("Failed to insert tradeCreated payload into MongoDB:", error);  
+        }
+        
+        if (payload.mint) {
+          console.log(`Checking if token with mint '${payload.mint}' exists in MongoDB.`);
+          const existingToken = await tokenCollection.findOne({ mint: payload.mint });
+          if (!existingToken) {
+            console.log(`Token with mint '${payload.mint}' not found. Sending mint to token-search.`);
+            try {
+              fetch(searchEndpoint, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ mint: payload.mint }),
+              });
+            } catch (error) {
+              console.error("Failed to send mint to token-search:", error);
+            }
+          } else {
+            console.log(`Token with mint '${payload.mint}' already exists. Skipping token-search fetch.`);
+          }
+        }
+
+      } else if (frame.payload.includes("newCoinCreated")) {
+        // Parse newCoinCreated payload and insert into MongoDB
+        try {
+          payload = await fetch (dataCleaner, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ data: frame.payload })
+          });
+        } catch (error) {
+          console.error("Failed to parse newCoinCreated payload:", error);
+        }
+        
+        try {
+          await tokenCollection.insertOne({ _id: payload.mint, ...payload });
+        } catch (error) {
+          console.error("Failed to insert newCoinCreated payload into MongoDB:", error);
+        }
+        if (payload.mint) {
+          console.log(`Sending mint to fetch-replies: ${payload.mint}`);
+          try {
+            replies = await fetch(fetcherEndpoint, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ mint: payload.mint }),
+            });
+          } catch (error) {
+            console.error("Failed to send mint to fetch-replies:", error);
+          }
+          try {
+            replies = await fetch(sentimentEndpoint, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(replies),
+            });
+          } catch (error) {
+            console.error("Failed to send replies to sentiment-analyser:", error);
+          }
+
+          try{
+            await replyCollection.insertMany(replies);
+            console.log(`Inserted ${formattedData.length} replies into MongoDB for mint: ${mint}`);
+          } catch (error) {
+            console.error("Failed to insert replies into MongoDB:", error);
+          }
+        }
+      } else {
+        console.log("Unhandled WebSocket message:", input);
+        fs.appendFileSync(otherFile, input + "\n");
+      }
+    });
+
+    ws.on("framesent", (frame) => {
+      console.log(`Sent: ${frame.payload}`);
+    });
+  });
+
+  // Navigate to Pump.fun website
+  await page.goto("https://pump.fun"); // Replace with the actual URL if different
+
+  // Keep the browser open for 60 seconds to capture WebSocket data
+  await page.waitForTimeout(60000);
+
+  // Close the browser and MongoDB connection
+  await browser.close();
+  await client.close();
+})();

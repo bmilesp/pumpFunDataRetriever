@@ -1,11 +1,9 @@
-version: "3.9"
-
 services:
-  scraper:
-    image: pump-fun-scraper:latest
-    container_name: scraper
+  main:
+    image: main:latest
+    container_name: main
     build:
-      context: ./docker-pump-fun-scraper
+      context: ./docker-pump-fun-main
       dockerfile: Dockerfile
     restart: always
     environment:
@@ -17,20 +15,38 @@ services:
     volumes:
       - ./scraper-output:/usr/src/app/output # Map the local directory to the container's output folder
 
+  data-cleaner:
+    image: pump-fun-data-cleaner:latest
+    container_name: data-cleaner
+    build:
+      context: ./docker-pump-fun-data-cleaner
+      dockerfile: Dockerfile
+    ports:
+      - "3003:3003"
+    networks:
+      - pump-network
+
+  sentiment-analyser:
+    image: pump-fun-sentiment-analyser:latest
+    container_name: sentiment-analyser
+    build:
+      context: ./docker-pump-fun-sentiment-analyser
+      dockerfile: Dockerfile
+    ports:
+      - "3002:3002"
+    networks: 
+      - pump-network
+
   token-search:
     image: pump-fun-token-search:latest
     container_name: token-search
     build:
       context: ./docker-pump-fun-token-search
       dockerfile: Dockerfile
-    environment:
-      - MONGO_URI=mongodb://mongodb:27017/pumpfun
     ports:
       - "3001:3001"
     networks:
       - pump-network
-    depends_on:
-      - mongodb
 
   fetch-replies:
     image: pump-fun-reply-fetcher:latest
@@ -38,14 +54,11 @@ services:
     build:
       context: ./docker-pump-fun-reply-fetcher
       dockerfile: Dockerfile
-    environment:
-      - MONGO_URI=mongodb://mongodb:27017/pumpfun
-    depends_on:
-      - mongodb
-    networks:
-      - pump-network
     ports:
       - "3000:3000"
+    networks:
+      - pump-network
+   
 
   mongodb:
     image: mongo:latest

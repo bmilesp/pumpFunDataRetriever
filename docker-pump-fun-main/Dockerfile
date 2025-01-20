@@ -14,10 +14,10 @@ RUN npm install
 RUN npx playwright install
 
 # Copy the script
-COPY scrape-websocket.js .
+COPY main.js .
 
 # Define environment variables for AWS S3
 #ENV S3_BUCKET_NAME=your-bucket-name
 
 # Command to run the script
-CMD ["node", "scrape-websocket.js"]
+CMD ["node", "main.js"]
