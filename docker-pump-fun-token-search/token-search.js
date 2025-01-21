@@ -26,7 +26,6 @@ const tokenCollectionName = "tokens";
 
     try {
       const url = `https://frontend-api-v2.pump.fun/coins/search?offset=0&limit=50&sort=market_cap&includeNsfw=false&order=DESC&searchTerm=${encodeURIComponent(mint)}&type=exact`;
-      console.log(`Searching tokens with mint: ${mint}`);
 
       const response = await fetch(url);
       if (!response.ok) {
@@ -45,7 +44,6 @@ const tokenCollectionName = "tokens";
         );
       }
 
-      console.log(`Search results for mint '${mint}' saved to MongoDB.`);
       res.send({ status: "success", message: `Search results for mint '${mint}' saved to MongoDB.` });
     } catch (error) {
       console.error("Error during token search:", error);

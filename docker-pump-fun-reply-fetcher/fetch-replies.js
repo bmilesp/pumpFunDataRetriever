@@ -17,7 +17,7 @@ const PORT = 3000;
       return res.status(400).send({ error: "Mint value is required" });
     }
 
-    console.log(`Fetching replies for mint: ${mint}`);
+    //console.log(`Fetching replies for mint: ${mint}`);
 
     const limit = 1000;
     let offset = 0;
@@ -28,7 +28,7 @@ const PORT = 3000;
     while (hasMore) {
 
       const url = `https://frontend-api-v2.pump.fun/replies/${mint}?limit=${limit}&offset=${offset}`;
-      console.log(`Fetching: ${url}`);
+      //console.log(`Fetching: ${url}`);
 
       const response = await fetch(url);
       if (!response.ok) {
@@ -52,7 +52,7 @@ const PORT = 3000;
       hasMore = data.replies && data.replies.length === limit;
       offset += limit;
     }
-    console.log(`FORMATTED DATA OFFSET: ${offset}: `, formattedData);
+    //console.log(`FORMATTED DATA OFFSET: ${offset}: `, formattedData);
     res.json(formattedData);
     
   });

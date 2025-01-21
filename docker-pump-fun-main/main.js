@@ -44,29 +44,41 @@ function bufferToString(buffer) {
       if (frame.payload.includes("tradeCreated")) {
         // Parse tradeCreated payload and insert into MongoDB
         try {
-          console.log("sending to data cleaner from tradeCreated");
           response = await fetch (dataCleaner, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ data: frame.payload })
           });
           payload = await response.json();
-          console.log("payload received from data cleaner tradeCreated");
         } catch (error) {
           console.error("Failed to parse tradeCreated payload:", error);
         }
 
-        try {
-          await transactionCollection.insertOne({ _id: payload.signature, ...payload });
+        let existingSignature = null;
+        try{
+          //console.log("signature: ", payload.signature);
+          existingSignature = await transactionCollection.findOne({ "signature": payload.signature });
+          //console.log("existingSignature: ", existingSignature);
         } catch (error) {
-          console.error("Failed to insert tradeCreated payload into MongoDB:", error);  
+          console.error("Failed to check if transaction exists in MongoDB:", error);
         }
+        //console.log("existingSignature: ", existingSignature);
+        if (!existingSignature) {
+          try {
+          await transactionCollection.insertOne({ _id: payload.signature, ...payload });
+          } catch (error) {
+            console.error(payload);
+            console.error("Failed to insert tradeCreated payload into MongoDB:", error);
+          }
+        } else {
+          //console.log(`Transaction with signature '${payload.signature}' already exists. Skipping insertion.`);
+        }
+       
         
         if (payload.mint) {
-          console.log(`Checking if token with mint '${payload.mint}' exists in MongoDB.`);
+          //console.log(`Checking if token with mint '${payload.mint}' exists in MongoDB.`);
           const existingToken = await tokenCollection.findOne({ mint: payload.mint });
           if (!existingToken) {
-            console.log(`Token with mint '${payload.mint}' not found. Sending mint to token-search.`);
             try {
               fetch(searchEndpoint, {
                 method: "POST",
@@ -77,21 +89,19 @@ function bufferToString(buffer) {
               console.error("Failed to send mint to token-search:", error);
             }
           } else {
-            console.log(`Token with mint '${payload.mint}' already exists. Skipping token-search fetch.`);
+            //console.log(`Token with mint '${payload.mint}' already exists. Skipping token-search fetch.`);
           }
         }
 
       } else if (frame.payload.includes("newCoinCreated")) {
         // Parse newCoinCreated payload and insert into MongoDB
         try {
-          console.log(" sending to data cleaner from newCoinCreated");
           response = await fetch (dataCleaner, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ data: bufferToString(frame.payload) })
           });
           payload = await response.json();
-          console.log("payload received from data cleaner newCoinCreated");
         } catch (error) {
           console.error("Failed to parse newCoinCreated payload:", error);
         }
@@ -102,11 +112,9 @@ function bufferToString(buffer) {
           console.error("Failed to insert newCoinCreated payload into MongoDB:", error);
         }
         if (payload.mint) {
-          console.log(`Sending mint to fetch-replies: ${payload.mint}`);
           try {
             // Record the current timestamp
             const timestamp = new Date();
-            console.log(`Updated last queried timestamp for mint: ${payload.mint}`);
             await lastQueriedCollection.updateOne(
               { _id: payload.mint },
               { $set: { timestamp } },
@@ -136,7 +144,6 @@ function bufferToString(buffer) {
               });
 
               replies = await response.json();
-              console.log("replies received from sentiment analyser", replies);
 
             } catch (error) {
               console.error("Failed to send replies to sentiment-analyser:", error);
@@ -144,12 +151,11 @@ function bufferToString(buffer) {
             //console.log("inserting replies into MongoDB", replies);
             try{
               await replyCollection.insertMany(replies);
-              console.log(`Inserted ${replies.length} replies into MongoDB for mint: ${mint}`);
             } catch (error) {
               console.error("Failed to insert replies into MongoDB:", error);
             }
           }else{
-            console.log(`No replies found for mint: ${payload.mint}`);
+            //console.log(`No replies found for mint: ${payload.mint}`);
           }
         }
       } else {

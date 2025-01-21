@@ -20,16 +20,17 @@ let payload;
       try{
         payload = JSON.parse("[" + jsonSplit[1]);
       } catch (error) {
-        console.error("Failed to parse tradeCreated payload:", error);
-        console.log(payload)
+        console.error("Failed to parse tradeCreated payload:", error, input);
       }
       payload = payload[1]
-      console.log('cleaned tradeCreated payload')
       res.json(payload);
     } else if (input.includes("newCoinCreated")) {
       const jsonSplit = input.split("{", 2);
-      payload = JSON.parse("{" + jsonSplit[1]);
-      console.log('cleaned tradeCreated newCoinCreated')
+      try{
+        payload = JSON.parse("{" + jsonSplit[1]);
+      } catch (error) {
+        console.error("Failed to parse newCoinCreated payload:", error, input);
+      }
       res.json(payload);
     } else {
       const errorMessage = "Invalid input. Expected a WebSocket payload of type tradeCreated or newCoinCreated."
@@ -37,7 +38,6 @@ let payload;
       console.log(JSON.stringify(input))
       res.status(400).json({ error: errorMessage});
     }
-      
   });
 
   app.listen(PORT, () => {

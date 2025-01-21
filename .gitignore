@@ -4,3 +4,4 @@ node_modules
 scraper-output
 fetcher-output
 data/*
+*.env

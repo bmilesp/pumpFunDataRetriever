@@ -1,16 +1,17 @@
 {
-    "name": "pump-fun-websocket-scraper",
+    "name": "pump-fun-reply-fetcher",
     "version": "1.0.0",
     "description": "A WebSocket reply fetcher for Pump.fun running in Docker.",
-    "main": "sentiment-analyser.js",
+    "main": "solscan-fetcher.js",
     "dependencies": {
-        "body-parser": "1.20.3",
         "express": "4.21.2",
-        "natural": "^8.0.1",
-        "sentiment": "^5.0.2"
+        "jest": "^29.7.0",
+        "mongodb": "^4.1.1",
+        "node-fetch": "^2.6.6"
     },
     "scripts": {
-        "start": "node sentiment-analyser.js"
+        "start": "node solscan-fetcher.js",
+        "test": "jest"
     },
     "author": "Your Name",
     "license": "MIT"
