@@ -4,11 +4,11 @@ const containerImage = "pump-fun-solscan-fetcher";
 const port = 3004;
 module.exports = async () => {
   console.log("Starting "+containerName+"...");
-  const dockerCommand =  `docker compose up --build`
+  const dockerCommand =  `sudo docker compose -f ../docker-compose.yml up ${containerName} --build -d`;
   console.log(dockerCommand);
   try {
     execSync(
-      `docker compose down`,
+      dockerCommand,
       { stdio: "inherit" }
     );
     console.log(containerName+" started.");

@@ -15,8 +15,18 @@ services:
     volumes:
       - ./scraper-output:/usr/src/app/output # Map the local directory to the container's output folder
 
-  include:
-  - ./docker-pump-fun-solscal-fetcher/docker-compose.yaml 
+  solscan-fetcher:
+    env_file: "./docker-pump-fun-solscan-fetcher/.env"
+    image: pump-fun-solscan-fetcher:latest
+    container_name: solscan-fetcher
+    restart: always
+    build:
+      context: ./docker-pump-fun-solscan-fetcher
+      dockerfile: Dockerfile
+    ports:
+      - "3004:3004"
+    networks:
+      - pump-network
 
   data-cleaner:
     image: pump-fun-data-cleaner:latest
