@@ -82,7 +82,7 @@ const getAllTransactions = async (tokenAddress) => {
 };
 
 // Endpoint to receive the token address
-app.post("/set-token-address", async (req, res) => {
+app.post("/", async (req, res) => {
   const { tokenAddress: receivedTokenAddress } = req.body;
 
   if (!receivedTokenAddress) {
