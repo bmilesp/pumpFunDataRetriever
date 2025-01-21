@@ -1,14 +1,14 @@
 const { execSync } = require("child_process");
-const containerName = "solscan-fetcher-test";
+const containerName = "solscan-fetcher";
 const containerImage = "pump-fun-solscan-fetcher";
 const port = 3004;
 module.exports = async () => {
   console.log("Starting "+containerName+"...");
-  const dockerCommand =  `docker build -t ${containerImage} -f Dockerfile . && docker run -d --name ${containerName} -p ${port}:${port} ${containerImage}`
+  const dockerCommand =  `docker compose up --build`
   console.log(dockerCommand);
   try {
     execSync(
-      `docker build -t ${containerImage} -f Dockerfile . && docker run -d --name ${containerName} -p ${port}:${port} ${containerImage}`,
+      `docker compose down`,
       { stdio: "inherit" }
     );
     console.log(containerName+" started.");

@@ -1,6 +1,6 @@
 const request = require("supertest");
 
-const BASE_URL = "http://solscan-fetcher-test:3004"; // The container is exposed on this port
+const BASE_URL = "http://solscan-fetcher:3004"; // The container is exposed on this port
 
 describe("Solscan Fetcher Docker Container Tests", () => {
   test("POST /should return success", async () => {
