@@ -1,0 +1,33 @@
+services:
+  solana-validator:
+    image: solanalabs/solana:stable
+    container_name: solana-validator
+    restart: unless-stopped
+    ports:
+      - "8899:8899" # RPC Port
+      - "8001:8001" # Gossip Port
+      - "9000:9000" # TPU Port
+      - "8000:8000" # Serve Port
+    volumes:
+      - ./solana-config:/home/solana/.config/solana
+      - ./ledger:/ledger
+    command:
+      - solana-validator
+      - --ledger /ledger
+      - --rpc-port 8899
+      - --entrypoint mainnet-beta.solana.com:8001
+      - --expected-genesis-hash 5eykt4UsFv8P8NJdTREpY1CsccN5gs9zV5HfpHGsF7De
+      - --no-snapshot-fetch
+      - --no-genesis-fetch
+      - --dynamic-port-range 8000-8020
+      - --rpc-bind-address 0.0.0.0
+      - --rpc-api full
+      - --enable-rpc-transaction-history
+      - --enable-cpi-and-log-storage
+      - --log /ledger/solana-validator.log
+      - --full-rpc-api
+      - --limit-ledger-size 1200000000 # ~1.2 billion slots for 3 months
+      - --wal-recovery-mode skip_any_corrupted_record
+      - --max-genesis-archive-unpacked-size 1073741824 # 1GB
+    environment:
+      - RUST_BACKTRACE=1
