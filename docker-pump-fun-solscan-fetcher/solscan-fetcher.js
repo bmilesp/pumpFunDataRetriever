@@ -27,7 +27,7 @@ app.use(express.json());
 // Function to fetch transactions for a specific page
 const fetchTransactions = async (tokenAddress, limit = 50, offset = 0) => {
   const url = `${BASE_URL}?tokenAddress=${tokenAddress}&limit=${limit}&offset=${offset}`;
-
+  console.log(url)
   try {
     const response = await fetch(url, {
       headers: {
@@ -84,10 +84,12 @@ const getAllTransactions = async (tokenAddress) => {
 // Endpoint to receive the token address
 app.post("/", async (req, res) => {
   const { tokenAddress: receivedTokenAddress } = req.body;
-
+  console.log(req.body)
+  console.log(receivedTokenAddress)
+  console.log(tokenAddress)
   if (!receivedTokenAddress) {
     console.error("Invalid token address format.");
-    return res.status(400).json({ status: "error", message: "Token address is required." });
+    return res.status(400).json({ status: "error", message: "Token address is required.", body: req.body });
   }
 
   tokenAddress = receivedTokenAddress;
