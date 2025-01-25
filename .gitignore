@@ -5,3 +5,4 @@ scraper-output
 fetcher-output
 data/*
 *.env
+*keypair.json

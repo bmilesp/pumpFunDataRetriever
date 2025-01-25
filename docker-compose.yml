@@ -15,18 +15,18 @@ services:
     volumes:
       - ./scraper-output:/usr/src/app/output # Map the local directory to the container's output folder
 
-  solscan-fetcher:
-    env_file: "./docker-pump-fun-solscan-fetcher/.env"
-    image: pump-fun-solscan-fetcher:latest
-    container_name: solscan-fetcher
-    restart: always
-    build:
-      context: ./docker-pump-fun-solscan-fetcher
-      dockerfile: Dockerfile
-    ports:
-      - "3004:3004"
-    networks:
-      - pump-network
+#  solscan-fetcher:
+#    env_file: "./docker-pump-fun-solscan-fetcher/.env"
+#    image: pump-fun-solscan-fetcher:latest
+#    container_name: solscan-fetcher
+#    restart: always
+#    build:
+#      context: ./docker-pump-fun-solscan-fetcher
+#      dockerfile: Dockerfile
+#    ports:
+#      - "3004:3004"
+#    networks:
+#      - pump-network
 
   data-cleaner:
     image: pump-fun-data-cleaner:latest
@@ -85,7 +85,7 @@ services:
     networks:
       - pump-network
     volumes:
-      - ./data/mongodb:/data/db
+      - /media/bp/Thungus/data/mongodb:/data/db
 networks:
   pump-network:
     driver: bridge

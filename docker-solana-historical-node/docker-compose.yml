@@ -1,4 +1,14 @@
 services:
+  solana-snapshot-finder: #https://github.com/c29r3/solana-snapshot-finder  how to access data for node?
+    image: c29r3/solana-snapshot-finder:latest
+    container_name: solana-snapshot-finder
+    restart: unless-stopped
+    volumes:
+      - /media/bp/Thungus/solana/ledger:/solana/snapshot
+    user: "${UID}:${GID}"
+    command: ["--snapshot_path", "/solana/snapshot", "--max_snapshot_age", "307064000"] # ~ 8 days per 1 million slots ( 307064000 is aprox 8 weeks ago from jan 23)
+
+
   solana-validator:
     image: solanalabs/solana:stable
     container_name: solana-validator
@@ -9,25 +19,40 @@ services:
       - "9000:9000" # TPU Port
       - "8000:8000" # Serve Port
     volumes:
-      - ./solana-config:/home/solana/.config/solana
-      - ./ledger:/ledger
+      - /media/bp/Thungus/solana/solana-config:/home/solana/.config/solana
+      - /media/bp/Thungus/solana/ledger:/ledger
     command:
       - solana-validator
       - --ledger /ledger
       - --rpc-port 8899
       - --entrypoint mainnet-beta.solana.com:8001
+      - --identity ./validator-keypair.json 
       - --expected-genesis-hash 5eykt4UsFv8P8NJdTREpY1CsccN5gs9zV5HfpHGsF7De
       - --no-snapshot-fetch
       - --no-genesis-fetch
       - --dynamic-port-range 8000-8020
       - --rpc-bind-address 0.0.0.0
       - --rpc-api full
+      - --no-voting
       - --enable-rpc-transaction-history
       - --enable-cpi-and-log-storage
       - --log /ledger/solana-validator.log
       - --full-rpc-api
-      - --limit-ledger-size 1200000000 # ~1.2 billion slots for 3 months
+      - --limit-ledger-size 2400000000 # ~1.2 billion slots for 3 months
       - --wal-recovery-mode skip_any_corrupted_record
       - --max-genesis-archive-unpacked-size 1073741824 # 1GB
     environment:
       - RUST_BACKTRACE=1
+
+
+#curl -X POST -H "Content-Type: application/json" -d '{
+#  "jsonrpc": "2.0",
+#  "id": 1,
+#  "method": "getSignaturesForAddress",
+#  "params": [
+#    "BX1pVmuVMjTrgQD275yjFsjT12dLroFBkvvDzivASkMS",
+#    {             
+#      "limit": 100
+#    }
+#  ]                     
+#}' http://localhost:8899
