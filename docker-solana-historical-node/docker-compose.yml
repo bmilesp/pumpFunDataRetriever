@@ -1,4 +1,5 @@
 services:
+ 
   solana-snapshot-finder: #https://github.com/c29r3/solana-snapshot-finder  how to access data for node?
     image: c29r3/solana-snapshot-finder:latest
     container_name: solana-snapshot-finder
@@ -8,6 +9,15 @@ services:
     user: "${UID}:${GID}"
     command: ["--snapshot_path", "/solana/snapshot", "--max_snapshot_age", "307064000"] # ~ 8 days per 1 million slots ( 307064000 is aprox 8 weeks ago from jan 23)
 
+  solana-test-validator:
+    image: solana-test-validator
+    container_name: solana-test-validator
+    restart: unless-stopped
+    ports:
+      - "8899:8899" # RPC Port
+      - "8000:8000" # Serve Port
+    volumes:
+      - ./ledger:/ledger
 
   solana-validator:
     image: solanalabs/solana:stable

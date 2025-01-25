@@ -39,7 +39,7 @@ const PORT = 3000;
       // Check if data.replies exists and is not empty
       if (data.replies && Array.isArray(data.replies) && data.replies.length > 0) {
         formattedData.push(data.replies.map((reply) => ({
-          _id: reply.signature, // Use signature as the _id
+          _id: reply.id, // Use id as the _id
           mint,
           ...reply,
         })));
