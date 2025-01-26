@@ -25,6 +25,7 @@ let payload;
       payload = payload[1]
       res.json(payload);
     } else if (input.includes("newCoinCreated")) {
+      //console.log("newCoinCreated: ", input)
       const jsonSplit = input.split("{", 2);
       try{
         payload = JSON.parse("{" + jsonSplit[1]);

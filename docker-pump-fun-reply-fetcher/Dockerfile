@@ -1,5 +1,5 @@
 # Use an official Node.js runtime as the base image
-FROM ubuntu:latest
+FROM node:22.0.0
 
 # Set the working directory
 WORKDIR /usr/src/app
