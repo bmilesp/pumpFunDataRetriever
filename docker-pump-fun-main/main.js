@@ -44,23 +44,47 @@ async function fetchReplies(payloadMint, replyCollection) {
   
   if (replies.length > 0) {
     try {
+      const batchSize = 25;
+      const batches = [];
       
-      response = await fetch(sentimentEndpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({data: replies}),
-      });
-
-      replies = await response.json();
-
+      // Split replies into batches of 50
+      for (let i = 0; i < replies.length; i += batchSize) {
+        batches.push(replies.slice(i, i + batchSize));
+      }
+    
+      const allResults = [];
+      let response; // To capture the last response in case of error
+      
+      // Process each batch sequentially
+      for (const batch of batches) {
+        response = await fetch(sentimentEndpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ data: batch }),
+        });
+    
+        const results = await response.json();
+        allResults.push(...results); // Assuming the endpoint returns an array
+      }
+    
+      // Combine all results
+      replies = allResults;
+    
     } catch (error) {
       console.error("Failed to send replies to sentiment-analyser:", error);
+      console.log("Last response:", response);
+      console.log("Total replies attempted:", replies.length);
+      return null;
     }
     //console.log("inserting replies into MongoDB", replies);
     try{
-      await replyCollection.insertMany(replies);
+      await replyCollection.insertMany(replies,{"ordered": false});
     } catch (error) {
-      console.error("Failed to insert replies into MongoDB:", error);
+      if (error.toString().includes("E11000 duplicate key error collection")){
+        console.log("Duplicate key errors found , skipping some inserts");
+      }else{
+        console.error("Failed to insert replies into MongoDB:", error);
+      }
     }
   }else{
     //console.log(`No replies found for mint: ${payload.mint}`);
@@ -91,6 +115,8 @@ async function fetchReplies(payloadMint, replyCollection) {
 
     // Listen for WebSocket messages
     ws.on("framereceived", async (frame) => {
+      let payload = {};
+      let response = null;
       const input = frame.payload;
 
       if (frame.payload.includes("tradeCreated")) {
@@ -114,8 +140,12 @@ async function fetchReplies(payloadMint, replyCollection) {
           console.error("Failed to check if transaction exists in MongoDB:", error);
         }
         //console.log("existingSignature: ", existingSignature);
+
         if (!existingSignature) {
-          console.log("existingSignature: ", existingSignature);
+          if(!payload.signature){
+            console.log("NEWTXN WITHOUT SIGNATURE!!: ", payload);
+            console.log(frame.payload);
+          }
           try {
             await transactionCollection.insertOne({ _id: payload.signature, ...payload });
           } catch (error) {

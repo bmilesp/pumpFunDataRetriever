@@ -10,6 +10,7 @@ let payload;
 
   // Endpoint to handle incoming mint requests
   app.post("/", async (req, res) => {
+    let payload = null;
     const input = String(req.body.data);
     if (!input) {
       return res.status(400).send({ error: "websocket data is required" });
@@ -20,9 +21,11 @@ let payload;
       try{
         payload = JSON.parse("[" + jsonSplit[1]);
       } catch (error) {
-        console.error("Failed to parse tradeCreated payload:", error, input);
+        console.error("Failed to parse tradeCreated payload:", error, jsonSplit);
+        return res.status(400).json({ error: "Failed to parse tradeCreated payload."});
       }
       payload = payload[1]
+
       res.json(payload);
     } else if (input.includes("newCoinCreated")) {
       //console.log("newCoinCreated: ", input)
