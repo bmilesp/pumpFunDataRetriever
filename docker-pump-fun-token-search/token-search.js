@@ -29,7 +29,7 @@ const tokenCollectionName = "tokens";
 
       const response = await fetch(url);
       if (!response.ok) {
-        console.error(`Failed to fetch data: ${response.statusText}`);
+        console.error(`ERROR: FAILED to fetch token-search: ${response.statusText}`);
       }
 
       const data = await response.json();

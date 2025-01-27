@@ -32,7 +32,7 @@ const PORT = 3000;
 
       const response = await fetch(url);
       if (!response.ok) {
-        console.error(`Failed to fetch data. Status: ${response.status}`);
+        console.error(`ERROR: FAILED to fetch-replies. Status: ${response.status}`);
         break;
       }
       const data = await response.json();

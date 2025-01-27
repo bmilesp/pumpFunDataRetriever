@@ -15,6 +15,58 @@ function bufferToString(buffer) {
   return decoder.decode(buffer); 
 }
 
+async function searchToken(payloadMint) {
+  try {
+    return await fetch(searchEndpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mint: payloadMint }),
+    });
+  } catch (error) {
+    console.error("Failed to send mint to token-search:", error);
+    return null;
+  }
+}
+
+async function fetchReplies(payloadMint, replyCollection) {
+  let response = null;
+  let replies = [];
+  try {
+    response = await fetch(fetcherEndpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mint: payloadMint }),
+    });
+    replies = await response.json();
+  } catch (error) {
+    console.error("Failed to send mint to fetch-replies:", error);
+  }
+  
+  if (replies.length > 0) {
+    try {
+      
+      response = await fetch(sentimentEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({data: replies}),
+      });
+
+      replies = await response.json();
+
+    } catch (error) {
+      console.error("Failed to send replies to sentiment-analyser:", error);
+    }
+    //console.log("inserting replies into MongoDB", replies);
+    try{
+      await replyCollection.insertMany(replies);
+    } catch (error) {
+      console.error("Failed to insert replies into MongoDB:", error);
+    }
+  }else{
+    //console.log(`No replies found for mint: ${payload.mint}`);
+  }
+}
+
 (async () => {
   // Connect to MongoDB
   const client = new MongoClient(mongoUri);
@@ -74,23 +126,23 @@ function bufferToString(buffer) {
           //console.log(`Transaction with signature '${payload.signature}' already exists. Skipping insertion.`);
         }
        
-        
         if (payload.mint) {
           //too many requests if we upsert every time, leave this check in for now, but should check every 5 min using replies_last_queried_at data
+          const lastTokenDataSearch = await lastQueriedCollection.findOne({ _id: payload.mint });
           const existingToken = await tokenCollection.findOne({ mint: payload.mint });
-          if (!existingToken) {
-            try {
-              fetch(searchEndpoint, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ mint: payload.mint }),
-              });
-            } catch (error) {
-              console.error("Failed to send mint to token-search:", error);
-            }
-          } else {
-            //console.log(`Token with mint '${payload.mint}' already exists. Skipping token-search fetch.`);
+          if ( 
+            (!existingToken && !lastTokenDataSearch) 
+            || (lastTokenDataSearch && (new Date() - new Date(lastTokenDataSearch.timestamp)) > 150000) //wait 2.5 (150 sec) min before checking again
+          ){
+            console.log("fetching token data and replies for mint: ", payload.mint);
+             ///searchToken
+             await searchToken(payload.mint);
+             await fetchReplies(payload.mint, replyCollection)
+          }else{
+            console.log(`Token with mint '${payload.mint}' data retrieved before alotted time. Skipping token data fetch.`);
           }
+        } else {
+          //console.log(`Token with mint '${payload.mint}' already exists. Skipping token-search fetch.`);
         }
 
       } else if (frame.payload.includes("newCoinCreated")) {
@@ -123,40 +175,10 @@ function bufferToString(buffer) {
           } catch (error) {
             console.error("Failed to update last queried timestamp:", error);
           }
-          try {
-            response = await fetch(fetcherEndpoint, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ mint: payload.mint }),
-            });
-            replies = await response.json();
-          } catch (error) {
-            console.error("Failed to send mint to fetch-replies:", error);
-          }
-          
-          if (replies.length > 0) {
-            try {
-              
-              response = await fetch(sentimentEndpoint, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({data: replies}),
-              });
 
-              replies = await response.json();
+          //fetch replies
 
-            } catch (error) {
-              console.error("Failed to send replies to sentiment-analyser:", error);
-            }
-            //console.log("inserting replies into MongoDB", replies);
-            try{
-              await replyCollection.insertMany(replies);
-            } catch (error) {
-              console.error("Failed to insert replies into MongoDB:", error);
-            }
-          }else{
-            //console.log(`No replies found for mint: ${payload.mint}`);
-          }
+          await fetchReplies(payload.mint);
         }
       } else {
         console.log("Unhandled WebSocket message:", input);
