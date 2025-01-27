@@ -17,5 +17,5 @@ EXPOSE 8900
 RUN cd /root/.local/share/solana/install/active_release/bin && ls -la
 ENV PATH /root/.local/share/solana/install/active_release/bin:$PATH
 RUN mkdir /ledger
-CMD ["solana-test-validator", "--ledger", "/ledger"] 
+CMD ["solana-test-validator", "--ledger", "/ledger", "--limit-ledger-size", "2500", "--log-messages-bytes-limit", "100000000", "--warp-slot", "316730000" ] #10000 shreds ~ 500GB 
 # , 

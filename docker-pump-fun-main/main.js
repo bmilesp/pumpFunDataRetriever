@@ -58,14 +58,14 @@ function bufferToString(buffer) {
         try{
           //console.log("signature: ", payload.signature);
           existingSignature = await transactionCollection.findOne({ "signature": payload.signature });
-          //console.log("existingSignature: ", existingSignature);
         } catch (error) {
           console.error("Failed to check if transaction exists in MongoDB:", error);
         }
         //console.log("existingSignature: ", existingSignature);
         if (!existingSignature) {
+          console.log("existingSignature: ", existingSignature);
           try {
-          await transactionCollection.insertOne({ _id: payload.signature, ...payload });
+            await transactionCollection.insertOne({ _id: payload.signature, ...payload });
           } catch (error) {
             console.error(payload);
             console.error("Failed to insert tradeCreated payload into MongoDB:", error);
@@ -76,7 +76,7 @@ function bufferToString(buffer) {
        
         
         if (payload.mint) {
-          //console.log(`Checking if token with mint '${payload.mint}' exists in MongoDB.`);
+          //too many requests if we upsert every time, leave this check in for now, but should check every 5 min using replies_last_queried_at data
           const existingToken = await tokenCollection.findOne({ mint: payload.mint });
           if (!existingToken) {
             try {
