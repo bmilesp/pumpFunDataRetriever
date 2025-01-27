@@ -6,7 +6,7 @@ services:
     volumes:
       - /media/bp/Thungus/solana/ledger:/solana/snapshot
     user: "${UID}:${GID}"
-    command: ["--snapshot_path", "/solana/snapshot", "--slot", "316000000"] # ~ 8 days per 1 million slots ( 307064000 is aprox 8 weeks ago from jan 23)
+    command: ["--snapshot_path", "/solana/snapshot", "--max_snapshot_age", "316000000"] # ~ 8 days per 1 million slots ( 307064000 is aprox 8 weeks ago from jan 23)
   solana-test-validator:
     image: solana-test-validator
     container_name: solana-test-validator
