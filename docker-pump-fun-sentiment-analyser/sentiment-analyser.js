@@ -25,9 +25,15 @@ var emojiStringToArray = function (str) {
     return arr;
 };
 
-app.use(bodyParser.json());
+try{
+    app.use(express.json({limit: '50mb'}));
+} catch (error) {
+    console.error("Failed to parse JSON body:", error);
+    return res.status(400).json({ error: "Failed to parse JSON body."});
+}
 
 // Endpoint to analyze sentiment
+try{
 app.post('/', (req, res) => {
     const  comments  = req.body.data[0];
     if (!comments) {
@@ -49,6 +55,10 @@ app.post('/', (req, res) => {
     });
     res.json(results);
 });
+} catch (error) {
+    console.error("Failed to analyze sentiment:", error);
+    return res.status(400).json({ error: "Failed to analyze sentiment."});
+}
 
 // Start the server
 const PORT = 3002;

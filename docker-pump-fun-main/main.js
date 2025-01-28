@@ -28,7 +28,7 @@ async function searchToken(payloadMint) {
   }
 }
 
-async function fetchReplies(payloadMint, replyCollection) {
+async function fetchReplies(payloadMint, replyCollection, lastQueriedCollection) {
   let response = null;
   let replies = [];
   try {
@@ -76,6 +76,19 @@ async function fetchReplies(payloadMint, replyCollection) {
       console.log("Total replies attempted:", replies.length);
       return null;
     }
+
+    try {
+      // Record the current timestamp
+      const timestamp = new Date();
+      await lastQueriedCollection.updateOne(
+        { _id: payloadMint },
+        { $set: { timestamp } },
+        { upsert: true }
+      );
+    } catch (error) {
+      console.error("Failed to update last queried timestamp:", error);
+    }
+
     //console.log("inserting replies into MongoDB", replies);
     try{
       await replyCollection.insertMany(replies,{"ordered": false});
@@ -161,14 +174,31 @@ async function fetchReplies(payloadMint, replyCollection) {
           const lastTokenDataSearch = await lastQueriedCollection.findOne({ _id: payload.mint });
           const existingToken = await tokenCollection.findOne({ mint: payload.mint });
           if ( 
-            (!existingToken && !lastTokenDataSearch) 
-            || (lastTokenDataSearch && (new Date() - new Date(lastTokenDataSearch.timestamp)) > 150000) //wait 2.5 (150 sec) min before checking again
+            (!existingToken) 
+            || (!lastTokenDataSearch) 
+            || (lastTokenDataSearch && (new Date() - new Date(lastTokenDataSearch.timestamp)) > 60000) //wait 1 (60 sec) min before checking again
           ){
             console.log("fetching token data and replies for mint: ", payload.mint);
              ///searchToken
-             await searchToken(payload.mint);
-             await fetchReplies(payload.mint, replyCollection)
+             const tokenPayload = await searchToken(payload.mint);
+            if (!tokenPayload) {
+              console.error("ERROR: Can't Find token data for mint, skipping upsert:", payload.mint);
+              return; 
+            } else{
+              try {
+                await tokenCollection.updateOne(
+                  { _id: tokenPayload.mint }, // Filter: Match document with the same _id
+                  { $set: { ...payload } }, // Update: Set the fields from payload
+                  { upsert: true } // Option: Insert if no matching document is found
+                );
+              } catch (error) {
+                console.error("Failed to upsert tradeCreated updated token data:", error);
+              }
+            }
+
+             await fetchReplies(payload.mint, replyCollection, lastQueriedCollection)
           }else{
+            console.log("existing token and last data search found: ", new Date(), " ", new Date(lastTokenDataSearch.timestamp));
             console.log(`Token with mint '${payload.mint}' data retrieved before alotted time. Skipping token data fetch.`);
           }
         } else {
@@ -194,21 +224,10 @@ async function fetchReplies(payloadMint, replyCollection) {
           console.error("Failed to insert newCoinCreated payload into MongoDB:", error);
         }
         if (payload.mint) {
-          try {
-            // Record the current timestamp
-            const timestamp = new Date();
-            await lastQueriedCollection.updateOne(
-              { _id: payload.mint },
-              { $set: { timestamp } },
-              { upsert: true }
-            );
-          } catch (error) {
-            console.error("Failed to update last queried timestamp:", error);
-          }
 
           //fetch replies
 
-          await fetchReplies(payload.mint);
+          await fetchReplies(payload.mint, replyCollection, lastQueriedCollection);
         }
       } else {
         console.log("Unhandled WebSocket message:", input);

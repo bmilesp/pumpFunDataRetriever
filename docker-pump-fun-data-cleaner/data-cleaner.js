@@ -17,11 +17,12 @@ let payload;
     }  
     if (input.includes("tradeCreated")) {
       // Parse tradeCreated payload and insert into MongoDB
-      const jsonSplit = input.split("[", 2);
+      let [first, ...rest] = input.split("[");
+      const jsonSplit = rest.join('[')
       try{
-        payload = JSON.parse("[" + jsonSplit[1]);
+        payload = JSON.parse("[" + rest);
       } catch (error) {
-        console.error("Failed to parse tradeCreated payload:", error, jsonSplit);
+        console.error("Failed to parse tradeCreated payload:", error, jsonSplit, input);
         return res.status(400).json({ error: "Failed to parse tradeCreated payload."});
       }
       payload = payload[1]
