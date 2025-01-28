@@ -176,7 +176,7 @@ async function fetchReplies(payloadMint, replyCollection, lastQueriedCollection)
           if ( 
             (!existingToken) 
             || (!lastTokenDataSearch) 
-            || (lastTokenDataSearch && (new Date() - new Date(lastTokenDataSearch.timestamp)) > 60000) //wait 1 (60 sec) min before checking again
+            || (lastTokenDataSearch && (new Date() - new Date(lastTokenDataSearch.timestamp)) > 30000) //wait 1 (30 sec) min before checking again
           ){
             console.log("fetching token data and replies for mint: ", payload.mint);
              ///searchToken
