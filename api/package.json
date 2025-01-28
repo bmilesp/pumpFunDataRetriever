@@ -1,0 +1,14 @@
+{
+    "name": "pumpfun-api",
+    "version": "1.0.0",
+    "description": "Interact with the database",
+    "main": "pumpfun-analyser-server.js",
+    "dependencies": {
+      "express": "4.21.2",
+      "mongodb": "^4.1.1",
+      "cors": "2.8.5"
+    },
+    "author": "BP",
+    "license": "MIT"
+  }
+  
