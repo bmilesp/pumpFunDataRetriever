@@ -42,30 +42,27 @@ app.get("/latestTransactions", async (req, res) => {
   }
 });
 
-app.get("/topMintsByTotalSellTxnsAndDateRange", async (req, res) => {
-  try {
-    const { startTimestamp, endTimestamp } = req.query;
-    const pipeline = [
-      { $match: { is_buy: false, created_timestamp: { $gte: Number(startTimestamp), $lte: Number(endTimestamp) } } },
-      { $group: { _id: "$mint", totalSells: { $sum: 1 }, total_sol_amount: { $sum: "$sol_amount" } } },
-      { $sort: { totalSells: -1 } },
-      { $limit: 10 },
-    ];
-    const results = await fetchData("transactions", pipeline);
-    res.json(results);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
 app.get("/topMintsByTotalCommentsAndDateRange", async (req, res) => {
   try {
     const { startTimestamp, endTimestamp } = req.query;
     const pipeline = [
       { $match: { timestamp: { $gte: Number(startTimestamp), $lte: Number(endTimestamp) } } },
-      { $group: { _id: "$mint", totalReplies: { $sum: 1 } } },
+      { $group: { 
+        _id: "$mint", 
+        totalReplies: { $sum: 1 }, 
+      }},
       { $sort: { totalReplies: -1 } },
       { $limit: 10 },
+      {
+        $lookup: {
+          from: "tokens",        // Collection to join
+          localField: "_id",     // Field from the grouped result ("mint" is now `_id`)
+          foreignField: "mint",  // Field in the "tokens" collection (adjust based on your schema)
+          pipeline: [ {$project: {name: 1, symbol:1, image_uri:1, usd_market_cap:1} } ],
+          as: "tokenDetails"     // Output array field for joined documents
+        }
+      },
+      { $unwind: "$tokenDetails" },
     ];
     const results = await fetchData("replies", pipeline);
     res.json(results);
@@ -77,11 +74,50 @@ app.get("/topMintsByTotalCommentsAndDateRange", async (req, res) => {
 app.get("/topMintsByTotalComments", async (req, res) => {
   try {
     const pipeline = [
-      { $group: { _id: "$mint", totalReplies: { $sum: 1 } } },
+      { $group: { 
+        _id: "$mint", 
+        totalReplies: { $sum: 1 }, 
+      }},
       { $sort: { totalReplies: -1 } },
       { $limit: 10 },
+      {
+        $lookup: {
+          from: "tokens",        // Collection to join
+          localField: "_id",     // Field from the grouped result ("mint" is now `_id`)
+          foreignField: "mint",  // Field in the "tokens" collection (adjust based on your schema)
+          pipeline: [ {$project: {name: 1, symbol:1, image_uri:1, usd_market_cap:1} } ],
+          as: "tokenDetails"     // Output array field for joined documents
+        }
+      },
+      { $unwind: "$tokenDetails" },
     ];
     const results = await fetchData("replies", pipeline);
+    res.json(results);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get("/topMintsByTotalSellTxnsAndDateRange", async (req, res) => {
+  try {
+    const { startTimestamp, endTimestamp } = req.query;
+    const pipeline = [
+      { $match: { is_buy: false, created_timestamp: { $gte: Number(startTimestamp), $lte: Number(endTimestamp) } } },
+      { $group: { _id: "$mint", totalSells: { $sum: 1 }, totalSolAmount: { $sum: "$sol_amount" }, averageSolAmount: {$avg: "$sol_amount"} } },
+      { $sort: { totalSells: -1 } },
+      { $limit: 10 },
+      {
+        $lookup: {
+          from: "tokens",        // Collection to join
+          localField: "_id",     // Field from the grouped result ("mint" is now `_id`)
+          foreignField: "mint",  // Field in the "tokens" collection (adjust based on your schema)
+          pipeline: [ {$project: {name: 1, symbol:1, image_uri:1, usd_market_cap:1} } ],
+          as: "tokenDetails"     // Output array field for joined documents
+        }
+      },
+      { $unwind: "$tokenDetails" },
+    ];
+    const results = await fetchData("transactions", pipeline);
     res.json(results);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -93,9 +129,19 @@ app.get("/topMintsByTotalBuyTxnsAndDateRange", async (req, res) => {
     const { startTimestamp, endTimestamp } = req.query;
     const pipeline = [
       { $match: { is_buy: true, created_timestamp: { $gte: Number(startTimestamp), $lte: Number(endTimestamp) } } },
-      { $group: { _id: "$mint", totalBuys: { $sum: 1 }, total_sol_amount: { $sum: "$sol_amount" } } },
+      { $group: { _id: "$mint", totalBuys: { $sum: 1 }, totalSolAmount: { $sum: "$sol_amount" }, averageSolAmount: {$avg: "$sol_amount"} } },
       { $sort: { totalBuys: -1 } },
       { $limit: 10 },
+      {
+        $lookup: {
+          from: "tokens",        // Collection to join
+          localField: "_id",     // Field from the grouped result ("mint" is now `_id`)
+          foreignField: "mint",  // Field in the "tokens" collection (adjust based on your schema)
+          pipeline: [ {$project: {name: 1, symbol:1, image_uri:1, usd_market_cap:1} } ],
+          as: "tokenDetails"     // Output array field for joined documents
+        }
+      },
+      { $unwind: "$tokenDetails" },
     ];
     const results = await fetchData("transactions", pipeline);
     res.json(results);
@@ -104,14 +150,24 @@ app.get("/topMintsByTotalBuyTxnsAndDateRange", async (req, res) => {
   }
 });
 
-app.get("/topMintsByTotalAllTxnsAndDateRange", async (req, res) => {
+app.get("/topPumpsByDateRange", async (req, res) => {
   try {
     const { startTimestamp, endTimestamp } = req.query;
     const pipeline = [
       { $match: { created_timestamp: { $gte: Number(startTimestamp), $lte: Number(endTimestamp) } } },
-      { $group: { _id: "$mint", totalTransactions: { $sum: 1 }, total_sol_amount: { $sum: "$sol_amount" } } },
-      { $sort: { totalTransactions: -1 } },
+      { $group: { _id: "$mint", totalTransactions: { $sum: 1 }, totalSolAmount: { $sum: "$signed_sol_amount" }, averageSolAmount: {$avg: "$signed_sol_amount"} } },
+      { $sort: { totalSolAmount: -1 } },
       { $limit: 10 },
+      {
+        $lookup: {
+          from: "tokens",        // Collection to join
+          localField: "_id",     // Field from the grouped result ("mint" is now `_id`)
+          foreignField: "mint",  // Field in the "tokens" collection (adjust based on your schema)
+          pipeline: [ {$project: {name: 1, symbol:1, image_uri:1, usd_market_cap:1} } ],
+          as: "tokenDetails"     // Output array field for joined documents
+        }
+      },
+      { $unwind: "$tokenDetails" },
     ];
     const results = await fetchData("transactions", pipeline);
     res.json(results);
@@ -120,14 +176,24 @@ app.get("/topMintsByTotalAllTxnsAndDateRange", async (req, res) => {
   }
 });
 
-app.get("/topMintsByBiggestDumpTxnsAndDateRange", async (req, res) => {
+app.get("/topDumpsByDateRange", async (req, res) => {
   try {
     const { startTimestamp, endTimestamp } = req.query;
     const pipeline = [
-      { $match: { is_buy: false, created_timestamp: { $gte: Number(startTimestamp), $lte: Number(endTimestamp) } } },
-      { $group: { _id: "$mint", totalSells: { $sum: 1 }, total_sol_amount: { $sum: "$sol_amount" } } },
-      { $sort: { totalSells: -1 } },
+      { $match: { created_timestamp: { $gte: Number(startTimestamp), $lte: Number(endTimestamp) } } },
+      { $group: { _id: "$mint", totalSolAmount: { $sum: "$signed_sol_amount" }, averageSolAmount: {$avg: "$signed_sol_amount"} } },
+      { $sort: { totalSolAmount: 1 } },
       { $limit: 10 },
+      {
+        $lookup: {
+          from: "tokens",        // Collection to join
+          localField: "_id",     // Field from the grouped result ("mint" is now `_id`)
+          foreignField: "mint",  // Field in the "tokens" collection (adjust based on your schema)
+          pipeline: [ {$project: {name: 1, symbol:1, image_uri:1, usd_market_cap:1} } ],
+          as: "tokenDetails"     // Output array field for joined documents
+        }
+      },
+      { $unwind: "$tokenDetails" },
     ];
     const results = await fetchData("transactions", pipeline);
     res.json(results);

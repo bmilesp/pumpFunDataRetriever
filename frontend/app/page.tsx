@@ -1,4 +1,5 @@
 "use client"
+import { NumericFormat } from 'react-number-format';
 import React, { useEffect, useState } from "react";
 import {
   Container,
@@ -8,8 +9,19 @@ import {
   Typography,
   Button,
   TextField,
+  List,
+  ListItem,
+  ListItemText,
+  Grid,
+  ListItemAvatar,
+  Avatar,
 } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import ListTotalReplies from './components/ListTotalReplies';
+import ListTopDumpsByMostSellTxns from './components/ListTopDumpsByMostSellTxns';
+import ListTopGainsByMostBuyTxns from './components/ListTopGainsByMostBuyTxns';
+import ListTopDumps from './components/ListTopDumps';
+import ListTopPumps from './components/ListTopPumps';
 
 const theme = createTheme({
   palette: {
@@ -19,6 +31,7 @@ const theme = createTheme({
     },
   },
 });
+
 
 const fetchData = async (endpoint:string, params:any) => {
   const url = new URL(`http://127.0.0.1:3010/${endpoint}`);
@@ -36,14 +49,40 @@ const fetchData = async (endpoint:string, params:any) => {
   }
 };
 
-const DashboardComponent = ({ title, endpoint }) => {
+
+
+const DateRangeComponent = ({startTimestamp, endTimestamp, setStartTimestampHandler, setEndTimestampHandler}) => {
+  return (
+    <Container maxWidth="lg" style={{ marginTop: "20px", backgroundColor: "#fff", padding: "20px" }}>
+    <TextField
+      label="Start Timestamp"
+      type="datetime-local"
+      slotProps={{ inputLabel: { shrink: true } }}
+      defaultValue={ new Date(startTimestamp).toISOString().slice(0, -8)}
+      onChange={(e) =>
+        setStartTimestampHandler(Math.floor(new Date(e.target.value).getTime()))
+      }
+      fullWidth
+      margin="normal"
+    />
+    <TextField
+      label="End Timestamp"
+      type="datetime-local"
+      slotProps={{ inputLabel: { shrink: true } }}
+      defaultValue={new Date(endTimestamp).toISOString().slice(0, -8)}
+      onChange={(e) =>
+        setEndTimestampHandler(Math.floor(new Date(e.target.value).getTime()))
+      }
+      fullWidth
+      margin="normal"
+    />
+    </Container>
+
+  );
+}
+
+const GenericListComponent = ({ title, endpoint, startTimestamp, endTimestamp }) => {
   const [data, setData] = useState([]);
-  const [startTimestamp, setStartTimestamp] = useState(
-    Math.floor(Date.now()) - 24 * 60 * 60
-  );
-  const [endTimestamp, setEndTimestamp] = useState(
-    Math.floor(Date.now())
-  );
 
   useEffect(() => {
     const loadData = async () => {
@@ -59,79 +98,45 @@ const DashboardComponent = ({ title, endpoint }) => {
   return (
     <Card>
       <CardContent>
-        <Typography variant="h6" gutterBottom>
+        <Typography variant="h4" gutterBottom>
           {title}
         </Typography>
-        <TextField
-          label="Start Timestamp"
-          type="datetime-local"
-          InputLabelProps={{ shrink: true }} 
-          defaultValue={new Date(startTimestamp).toISOString().slice(0, -8)}
-          onChange={(e) =>
-            setStartTimestamp(Math.floor(new Date(e.target.value).getTime()))
-          }
-          fullWidth
-          margin="normal"
-        />
-        <TextField
-          label="End Timestamp"
-          type="datetime-local"
-          slotProps={{ inputLabel: { shrink: true } }}
-          defaultValue={new Date(endTimestamp).toISOString().slice(0, -8)}
-          onChange={(e) =>
-            setEndTimestamp(Math.floor(new Date(e.target.value).getTime()))
-          }
-          fullWidth
-          margin="normal"
-        />
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={async () => {
-            const result = await fetchData(endpoint, {
-              startTimestamp,
-              endTimestamp,
-            });
-            setData(result);
-          }}
-        >
-          Refresh
-        </Button>
         <pre>{JSON.stringify(data, null, 2)}</pre>
       </CardContent>
     </Card>
   );
 };
 
+
+
 const App = () => {
+  const [startTimestamp, setStartTimestamp] = useState(
+    Math.floor(new Date(new Date().getTime() - (24 * 60 * 60 * 1000)).getTime())
+  );
+  const [endTimestamp, setEndTimestamp] = useState(
+    Math.floor(Date.now())
+  );
+
   const endpoints = [
+    {
+      title: "Most Sells Txn Types",
+      endpoint: "topMintsByTotalSellTxnsAndDateRange",
+    },
+    {
+      title: "Most Buy Txn Types",
+      endpoint: "topMintsByTotalBuyTxnsAndDateRange",
+    },
+    {
+      title: "Top Pumps",
+      endpoint: "topMintsByTotalAllTxnsAndDateRange",
+    },
     {
       title: "Latest Transactions",
       endpoint: "latestTransactions",
     },
     {
-      title: "Top Mints By Total Sell Txns And Date Range",
-      endpoint: "topMintsByTotalSellTxnsAndDateRange",
-    },
-    {
-      title: "Top Mints By Total Comments And Date Range",
-      endpoint: "topMintsByTotalCommentsAndDateRange",
-    },
-    {
-      title: "Top Mints By Total Comments",
+      title: "Top Mints By Total Comments - All Time",
       endpoint: "topMintsByTotalComments",
-    },
-    {
-      title: "Top Mints By Total Buy Txns And Date Range",
-      endpoint: "topMintsByTotalBuyTxnsAndDateRange",
-    },
-    {
-      title: "Top Mints By Total All Txns And Date Range",
-      endpoint: "topMintsByTotalAllTxnsAndDateRange",
-    },
-    {
-      title: "Top Mints By Biggest Dump Txns And Date Range",
-      endpoint: "topMintsByBiggestDumpTxnsAndDateRange",
     },
   ];
 
@@ -142,12 +147,75 @@ const App = () => {
           PumpFun Dashboard
         </Typography>
         <Grid2 container spacing={4}>
+          <DateRangeComponent 
+            startTimestamp={startTimestamp} 
+            endTimestamp={endTimestamp} 
+            setStartTimestampHandler={setStartTimestamp} 
+            setEndTimestampHandler={setEndTimestamp} 
+          />
+        </Grid2>
+        <Grid2 container spacing={4} style={{ marginTop: "20px" }}>
+        <Grid2 size={{ xs: 12, md: 6 }} key={"topTotalReplies"}>
+              <ListTotalReplies
+                title="Most Comments"
+                endpoint="topMintsByTotalCommentsAndDateRange"
+                startTimestamp={startTimestamp}
+                endTimestamp={endTimestamp}
+              />
+            </Grid2>
+            <Grid2 size={{ xs: 12, md: 6 }} key={"topTotalRepliesAllTime"}>
+              <ListTotalReplies
+                title="Most Comments - All Time"
+                endpoint="topMintsByTotalComments"
+                startTimestamp={startTimestamp}
+                endTimestamp={endTimestamp}
+              />
+            </Grid2>
+            <Grid2 size={{ xs: 12, md: 6 }} key={"topDumpsByDateRange"}>
+              <ListTopDumps
+                title="Top Dumps"
+                endpoint="topDumpsByDateRange"
+                startTimestamp={startTimestamp}
+                endTimestamp={endTimestamp}
+                backgroundColor={"#ffb3b3"}
+              />
+            </Grid2>
+            <Grid2 size={{ xs: 12, md: 6 }} key={"topPumpsByDateRange"}>
+              <ListTopPumps
+                title="Top Pumps"
+                endpoint="topPumpsByDateRange"
+                startTimestamp={startTimestamp}
+                endTimestamp={endTimestamp}
+                backgroundColor={"#b3ffb8"}
+              />
+            </Grid2>
+            <Grid2 size={{ xs: 12, md: 6 }} key={"topMintsByTotalSellTxnsAndDateRange"}>
+              <ListTopDumpsByMostSellTxns
+                title="Most Sell Txns"
+                endpoint="topMintsByTotalSellTxnsAndDateRange"
+                startTimestamp={startTimestamp}
+                endTimestamp={endTimestamp}
+                backgroundColor={"#ffb3b3"}
+              />
+            </Grid2>
+            <Grid2 size={{ xs: 12, md: 6 }} key={"topMintsByTotalBuyTxnsAndDateRange"}>
+              <ListTopGainsByMostBuyTxns
+                title="Most Buy Txns"
+                endpoint="topMintsByTotalBuyTxnsAndDateRange"
+                startTimestamp={startTimestamp}
+                endTimestamp={endTimestamp}
+                backgroundColor={"#b3ffb8"}
+              />
+            </Grid2>
           {endpoints.map((endpoint) => (
             <Grid2 size={{ xs: 12, md: 6 }} key={endpoint.endpoint}>
-              
-              <DashboardComponent
+
+              <GenericListComponent
                 title={endpoint.title}
                 endpoint={endpoint.endpoint}
+                startTimestamp={startTimestamp}
+                endTimestamp={endTimestamp}
+
               />
             </Grid2>
           ))}

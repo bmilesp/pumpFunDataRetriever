@@ -160,6 +160,8 @@ async function fetchReplies(payloadMint, replyCollection, lastQueriedCollection)
             console.log(frame.payload);
           }
           try {
+            payload.is_buy === true? payload.signed_sol_amount = payload.sol_amount : payload.signed_sol_amount = -payload.sol_amount;
+              
             await transactionCollection.insertOne({ _id: payload.signature, ...payload });
           } catch (error) {
             console.error(payload);

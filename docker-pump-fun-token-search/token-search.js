@@ -32,12 +32,10 @@ const tokenCollectionName = "tokens";
         console.error(`ERROR: FAILED to fetch token-search: ${response.statusText}`);
         return res.status(500).send({ error: "Failed to search tokens." });
       }
-
       const data = await response.json();
       //console.log("Search Results:", data);
-
       // Save each result to MongoDB
-      for (const token of data.results || []) {
+      for (const token of data || []) {
         await tokenCollection.updateOne(
           { mint: token.mint },
           { $set: token },
