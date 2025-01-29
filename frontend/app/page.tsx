@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import {
   Container,
-  Grid,
+  Grid2,
   Card,
   CardContent,
   Typography,
@@ -39,10 +39,10 @@ const fetchData = async (endpoint:string, params:any) => {
 const DashboardComponent = ({ title, endpoint }) => {
   const [data, setData] = useState([]);
   const [startTimestamp, setStartTimestamp] = useState(
-    Math.floor(Date.now() / 1000) - 24 * 60 * 60
+    Math.floor(Date.now()) - 24 * 60 * 60
   );
   const [endTimestamp, setEndTimestamp] = useState(
-    Math.floor(Date.now() / 1000)
+    Math.floor(Date.now())
   );
 
   useEffect(() => {
@@ -65,9 +65,10 @@ const DashboardComponent = ({ title, endpoint }) => {
         <TextField
           label="Start Timestamp"
           type="datetime-local"
-          defaultValue={new Date(startTimestamp * 1000).toISOString().slice(0, -8)}
+          InputLabelProps={{ shrink: true }} 
+          defaultValue={new Date(startTimestamp).toISOString().slice(0, -8)}
           onChange={(e) =>
-            setStartTimestamp(Math.floor(new Date(e.target.value).getTime() / 1000))
+            setStartTimestamp(Math.floor(new Date(e.target.value).getTime()))
           }
           fullWidth
           margin="normal"
@@ -75,9 +76,10 @@ const DashboardComponent = ({ title, endpoint }) => {
         <TextField
           label="End Timestamp"
           type="datetime-local"
-          defaultValue={new Date(endTimestamp * 1000).toISOString().slice(0, -8)}
+          slotProps={{ inputLabel: { shrink: true } }}
+          defaultValue={new Date(endTimestamp).toISOString().slice(0, -8)}
           onChange={(e) =>
-            setEndTimestamp(Math.floor(new Date(e.target.value).getTime() / 1000))
+            setEndTimestamp(Math.floor(new Date(e.target.value).getTime()))
           }
           fullWidth
           margin="normal"
@@ -139,16 +141,17 @@ const App = () => {
         <Typography variant="h4" gutterBottom>
           PumpFun Dashboard
         </Typography>
-        <Grid container spacing={4}>
+        <Grid2 container spacing={4}>
           {endpoints.map((endpoint) => (
-            <Grid item xs={12} md={6} key={endpoint.endpoint}>
+            <Grid2 size={{ xs: 12, md: 6 }} key={endpoint.endpoint}>
+              
               <DashboardComponent
                 title={endpoint.title}
                 endpoint={endpoint.endpoint}
               />
-            </Grid>
+            </Grid2>
           ))}
-        </Grid>
+        </Grid2>
       </Container>
     </ThemeProvider>
   );
