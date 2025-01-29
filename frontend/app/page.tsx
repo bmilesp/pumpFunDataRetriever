@@ -117,28 +117,6 @@ const App = () => {
     Math.floor(Date.now())
   );
 
-  const endpoints = [
-    {
-      title: "Most Sells Txn Types",
-      endpoint: "topMintsByTotalSellTxnsAndDateRange",
-    },
-    {
-      title: "Most Buy Txn Types",
-      endpoint: "topMintsByTotalBuyTxnsAndDateRange",
-    },
-    {
-      title: "Top Pumps",
-      endpoint: "topMintsByTotalAllTxnsAndDateRange",
-    },
-    {
-      title: "Latest Transactions",
-      endpoint: "latestTransactions",
-    },
-    {
-      title: "Top Mints By Total Comments - All Time",
-      endpoint: "topMintsByTotalComments",
-    },
-  ];
 
   return (
     <ThemeProvider theme={theme}>
@@ -207,18 +185,6 @@ const App = () => {
                 backgroundColor={"#b3ffb8"}
               />
             </Grid2>
-          {endpoints.map((endpoint) => (
-            <Grid2 size={{ xs: 12, md: 6 }} key={endpoint.endpoint}>
-
-              <GenericListComponent
-                title={endpoint.title}
-                endpoint={endpoint.endpoint}
-                startTimestamp={startTimestamp}
-                endTimestamp={endTimestamp}
-
-              />
-            </Grid2>
-          ))}
         </Grid2>
       </Container>
     </ThemeProvider>
