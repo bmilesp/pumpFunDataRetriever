@@ -1,4 +1,4 @@
-import { Avatar, Card, CardContent, List, ListItem, ListItemAvatar, ListItemText, Typography } from "@mui/material";
+import { Avatar, Card, CardContent, Grid2, List, ListItem, ListItemAvatar, ListItemText, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { NumericFormat } from "react-number-format";
 import AvatarCardListItem from "./AvatarCardListItem";
@@ -20,10 +20,11 @@ const fetchData = async (endpoint:string, params:any) => {
     }
   };
 
-  const ListTopDumps = ({title, endpoint, startTimestamp, endTimestamp, backgroundColor}) => {
+  const ListTopVolume = ({title, endpoint, startTimestamp, endTimestamp, backgroundColor}) => {
     const [data, setData] = useState(
       [{
         _id: "1", 
+        totalTxns: 0,
         totalSolAmount: 0,
         averageSolAmount:0,
         tokenDetails: {
@@ -48,37 +49,36 @@ const fetchData = async (endpoint:string, params:any) => {
     }, [startTimestamp, endTimestamp, endpoint]);
   
     return (
-      <Card sx={{ backgroundColor: backgroundColor }}>
+      <Card sx={{ backgroundColor: backgroundColor}}>
         <CardContent>
           <Typography variant="h4" gutterBottom>
             {title}
           </Typography>
-          <List style={{backgroundColor:backgroundColor}} sx={{ p:0, width: '100%', bgcolor: 'background.paper' }}>
-          {data.map((item) => {
-              const primaryFloatRightText= <>Total Dumped:&nbsp;
+          <List style={{backgroundColor:backgroundColor}} sx={{ p:"0 30px 0 0", width: '100%', bgcolor: 'background.paper' }}>
+            {data.map((item) => {
+              const secondaryFloatLeftText= <>AVG Sale (SOL):&nbsp; 
               <NumericFormat
-                style={{backgroundColor:backgroundColor, width: "80px", textAlign: "right"}}
-                value={item.totalSolAmount / 10**9}
-                decimalScale={2} 
-                suffix=" SOL"
-                thousandSeparator
-              />
-              </>
-              const secondaryText= <> AVG Sale (SOL)::&nbsp; 
-             <NumericFormat
-                style={{backgroundColor:backgroundColor, width: "40px", textAlign: "right"}}
+                style={{backgroundColor:backgroundColor}}
                 value={item.averageSolAmount / 10**9}
                 decimalScale={2} 
                 thousandSeparator
               /></>;
+              const secondaryFloatRightText=<>Total SOL:&nbsp;
+                <NumericFormat
+                  style={{backgroundColor:backgroundColor, width: "50px", textAlign: "right"}}
+                  value={item.totalSolAmount / 10**9}
+                  decimalScale={2} 
+                  thousandSeparator
+                /></>
+
 
               return ( <AvatarCardListItem 
                   itemId={item._id}
                   tokenSymbolAndNameText={item.tokenDetails?.symbol+"  —  "+item.tokenDetails?.name }
                   tokenImageUri={item.tokenDetails?.image_uri}
-                  primaryFloatRightText={primaryFloatRightText}
-                  secondaryFloatRightText={secondaryText}
-                  secondaryFloatLeftText=""
+                  primaryFloatRightText={"Total Txns: "+item.totalTxns}
+                  secondaryFloatRightText={secondaryFloatRightText}
+                  secondaryFloatLeftText={secondaryFloatLeftText}
                 >
                 </AvatarCardListItem>
               )
@@ -89,4 +89,4 @@ const fetchData = async (endpoint:string, params:any) => {
     );
   };
 
-  export default ListTopDumps;
+  export default ListTopVolume;

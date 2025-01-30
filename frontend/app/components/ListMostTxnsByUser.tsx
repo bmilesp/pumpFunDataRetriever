@@ -20,18 +20,13 @@ const fetchData = async (endpoint:string, params:any) => {
     }
   };
 
-  const ListTopDumps = ({title, endpoint, startTimestamp, endTimestamp, backgroundColor}) => {
+  const ListMostTxnsByUser = ({title, endpoint, startTimestamp, endTimestamp, backgroundColor}) => {
     const [data, setData] = useState(
       [{
         _id: "1", 
         totalSolAmount: 0,
         averageSolAmount:0,
-        tokenDetails: {
-          symbol: "Loading...",
-          name: "Loading...",
-          image_uri: "",
-          usd_market_cap: "Loading...",
-        },
+        totalTxns:0
       }]
     );
   
@@ -48,37 +43,46 @@ const fetchData = async (endpoint:string, params:any) => {
     }, [startTimestamp, endTimestamp, endpoint]);
   
     return (
-      <Card sx={{ backgroundColor: backgroundColor }}>
+      <Card sx={{ backgroundColor: backgroundColor}}>
         <CardContent>
           <Typography variant="h4" gutterBottom>
             {title}
           </Typography>
           <List style={{backgroundColor:backgroundColor}} sx={{ p:0, width: '100%', bgcolor: 'background.paper' }}>
-          {data.map((item) => {
-              const primaryFloatRightText= <>Total Dumped:&nbsp;
+
+            {data.map((item) => {
+              const primaryFloatRightText= <>Total Txns:&nbsp;
               <NumericFormat
                 style={{backgroundColor:backgroundColor, width: "80px", textAlign: "right"}}
-                value={item.totalSolAmount / 10**9}
+                value={item.totalTxns}
                 decimalScale={2} 
                 suffix=" SOL"
                 thousandSeparator
               />
               </>
-              const secondaryText= <> AVG Sale (SOL)::&nbsp; 
-             <NumericFormat
+              const secondaryText= <>Total SOL:&nbsp; 
+              <NumericFormat
+                style={{backgroundColor:backgroundColor, width: "40px", textAlign: "right"}}
+                value={item.totalSolAmount / 10**9}
+                decimalScale={2} 
+                thousandSeparator
+              /></>;
+              const secondaryLeftText= <>Average SOL per Txn:&nbsp; 
+              <NumericFormat
                 style={{backgroundColor:backgroundColor, width: "40px", textAlign: "right"}}
                 value={item.averageSolAmount / 10**9}
-                decimalScale={2} 
+                decimalScale={3} 
                 thousandSeparator
               /></>;
 
               return ( <AvatarCardListItem 
                   itemId={item._id}
-                  tokenSymbolAndNameText={item.tokenDetails?.symbol+"  —  "+item.tokenDetails?.name }
+                  linkToPrefix="https://solscan.io/account/"
+                  tokenSymbolAndNameText={item._id}
                   tokenImageUri={item.tokenDetails?.image_uri}
                   primaryFloatRightText={primaryFloatRightText}
                   secondaryFloatRightText={secondaryText}
-                  secondaryFloatLeftText=""
+                  secondaryFloatLeftText={secondaryLeftText}
                 >
                 </AvatarCardListItem>
               )
@@ -89,4 +93,4 @@ const fetchData = async (endpoint:string, params:any) => {
     );
   };
 
-  export default ListTopDumps;
+  export default ListMostTxnsByUser;

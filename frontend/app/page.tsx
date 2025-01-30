@@ -18,10 +18,13 @@ import {
 } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import ListTotalReplies from './components/ListTotalReplies';
-import ListTopDumpsByMostSellTxns from './components/ListTopDumpsByMostSellTxns';
+import ListTopDumpsByMostSellTxns from './components/ListTopVolume';
 import ListTopGainsByMostBuyTxns from './components/ListTopGainsByMostBuyTxns';
 import ListTopDumps from './components/ListTopDumps';
 import ListTopPumps from './components/ListTopPumps';
+import ListTopVolume from './components/ListTopVolume';
+import ListMosstTxnsByUser from './components/ListMostTxnsByUser';
+import ListMostTxnsByUser from './components/ListMostTxnsByUser';
 
 const theme = createTheme({
   palette: {
@@ -53,8 +56,9 @@ const fetchData = async (endpoint:string, params:any) => {
 
 const DateRangeComponent = ({startTimestamp, endTimestamp, setStartTimestampHandler, setEndTimestampHandler}) => {
   return (
-    <Container maxWidth="lg" style={{ marginTop: "20px", backgroundColor: "#fff", padding: "20px" }}>
+    <Container maxWidth="xl" style={{ marginTop: "20px", backgroundColor: "#fff", padding: "20px", borderRadius: "5px" }}>
     <TextField
+      style={{maxWidth: 360}}
       label="Start Timestamp"
       type="datetime-local"
       slotProps={{ inputLabel: { shrink: true } }}
@@ -66,6 +70,7 @@ const DateRangeComponent = ({startTimestamp, endTimestamp, setStartTimestampHand
       margin="normal"
     />
     <TextField
+      style={{marginLeft: 5, maxWidth: 360}}
       label="End Timestamp"
       type="datetime-local"
       slotProps={{ inputLabel: { shrink: true } }}
@@ -120,7 +125,7 @@ const App = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <Container maxWidth="lg" style={{ marginTop: "20px" }}>
+      <Container maxWidth="xl" style={{ marginTop: "20px" }}>
         <Typography variant="h4" gutterBottom>
           PumpFun Dashboard
         </Typography>
@@ -132,59 +137,61 @@ const App = () => {
             setEndTimestampHandler={setEndTimestamp} 
           />
         </Grid2>
-        <Grid2 container spacing={4} style={{ marginTop: "20px" }}>
-        <Grid2 size={{ xs: 12, md: 6 }} key={"topTotalReplies"}>
-              <ListTotalReplies
-                title="Most Comments"
-                endpoint="topMintsByTotalCommentsAndDateRange"
-                startTimestamp={startTimestamp}
-                endTimestamp={endTimestamp}
-              />
-            </Grid2>
-            <Grid2 size={{ xs: 12, md: 6 }} key={"topTotalRepliesAllTime"}>
-              <ListTotalReplies
-                title="Most Comments - All Time"
-                endpoint="topMintsByTotalComments"
-                startTimestamp={startTimestamp}
-                endTimestamp={endTimestamp}
-              />
-            </Grid2>
-            <Grid2 size={{ xs: 12, md: 6 }} key={"topDumpsByDateRange"}>
-              <ListTopDumps
-                title="Top Dumps"
-                endpoint="topDumpsByDateRange"
-                startTimestamp={startTimestamp}
-                endTimestamp={endTimestamp}
-                backgroundColor={"#ffb3b3"}
-              />
-            </Grid2>
-            <Grid2 size={{ xs: 12, md: 6 }} key={"topPumpsByDateRange"}>
-              <ListTopPumps
-                title="Top Pumps"
-                endpoint="topPumpsByDateRange"
-                startTimestamp={startTimestamp}
-                endTimestamp={endTimestamp}
-                backgroundColor={"#b3ffb8"}
-              />
-            </Grid2>
-            <Grid2 size={{ xs: 12, md: 6 }} key={"topMintsByTotalSellTxnsAndDateRange"}>
-              <ListTopDumpsByMostSellTxns
-                title="Most Sell Txns"
-                endpoint="topMintsByTotalSellTxnsAndDateRange"
-                startTimestamp={startTimestamp}
-                endTimestamp={endTimestamp}
-                backgroundColor={"#ffb3b3"}
-              />
-            </Grid2>
-            <Grid2 size={{ xs: 12, md: 6 }} key={"topMintsByTotalBuyTxnsAndDateRange"}>
-              <ListTopGainsByMostBuyTxns
-                title="Most Buy Txns"
-                endpoint="topMintsByTotalBuyTxnsAndDateRange"
-                startTimestamp={startTimestamp}
-                endTimestamp={endTimestamp}
-                backgroundColor={"#b3ffb8"}
-              />
-            </Grid2>
+        <Grid2 container spacing={1} style={{ marginTop: "10px" }}>
+          <Grid2 size={{ xs: 12, md: 6 }} key={"topDumpsByDateRange"}>
+            <ListTopDumps
+              title="Top Dumps"
+              endpoint="topDumpsByDateRange"
+              startTimestamp={startTimestamp}
+              endTimestamp={endTimestamp}
+              backgroundColor={"#ffb3b3"}
+            />
+          </Grid2>
+          <Grid2 size={{ xs: 12, md: 6 }} key={"topPumpsByDateRange"}>
+            <ListTopPumps
+              title="Top Pumps"
+              endpoint="topPumpsByDateRange"
+              startTimestamp={startTimestamp}
+              endTimestamp={endTimestamp}
+              backgroundColor={"#b3ffb8"}
+            />
+          </Grid2>
+          <Grid2 size={{ xs: 12, md: 6 }} key={"topTotalReplies"}>
+            <ListTotalReplies
+              title="Most Comments"
+              endpoint="topMintsByTotalCommentsAndDateRange"
+              startTimestamp={startTimestamp}
+              endTimestamp={endTimestamp}
+              backgroundColor={"#fff"}
+            />
+          </Grid2>
+          <Grid2 size={{ xs: 12, md: 6 }} key={"topTotalRepliesAllTime"}>
+            <ListTotalReplies
+              title="Most Comments - All Time"
+              endpoint="topMintsByTotalComments"
+              startTimestamp={startTimestamp}
+              endTimestamp={endTimestamp}
+              backgroundColor={"#fff"}
+            />
+          </Grid2>
+          <Grid2 size={{ xs: 12, md: 6 }} key={"topMintsByVolumeAndDateRange"}>
+            <ListTopVolume
+              title="Most Volume"
+              endpoint="topMintsByVolumeAndDateRange"
+              startTimestamp={startTimestamp}
+              endTimestamp={endTimestamp}
+              backgroundColor={"#fff"}
+            />
+          </Grid2>
+          <Grid2 size={{ xs: 12, md: 6 }} key={"topMostTxnsByUser"}>
+            <ListMostTxnsByUser
+              title="Most Txns By User"
+              endpoint="topMostTxnsByUser"
+              startTimestamp={startTimestamp}
+              endTimestamp={endTimestamp}
+              backgroundColor={"#fff"}
+            />
+          </Grid2>
         </Grid2>
       </Container>
     </ThemeProvider>

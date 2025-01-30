@@ -1,6 +1,7 @@
 import { Avatar, Card, CardContent, List, ListItem, ListItemAvatar, ListItemText, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { NumericFormat } from "react-number-format";
+import AvatarCardListItem from "./AvatarCardListItem";
 
 
 const fetchData = async (endpoint:string, params:any) => {
@@ -19,7 +20,7 @@ const fetchData = async (endpoint:string, params:any) => {
     }
   };
 
-const ListTotalReplies = ({title, endpoint, startTimestamp, endTimestamp}) => {
+const ListTotalReplies = ({title, endpoint, startTimestamp, endTimestamp, backgroundColor}) => {
     const [data, setData] = useState(
       [{
         _id: "1", 
@@ -51,39 +52,28 @@ const ListTotalReplies = ({title, endpoint, startTimestamp, endTimestamp}) => {
           <Typography variant="h4" gutterBottom>
             {title}
           </Typography>
-          <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
-            {data.map((item) => (
-            
-              <ListItem component="a" href={"https://pump.fun/coin/"+item._id} target="_blank" alignItems="flex-start"  key={item._id}>
-                <ListItemAvatar>
-                  <Avatar alt={item.tokenDetails?.symbol+" "+item.tokenDetails?.name} src={item.tokenDetails?.image_uri} />
-                </ListItemAvatar>
-                <ListItemText
-                  primary={item.tokenDetails?.symbol+"  —  "+item.tokenDetails?.name }
-                  secondary={
-                    <React.Fragment>
-                      <Typography
-                        component="span"
-                        variant="body2"
-                        sx={{ color: 'text.primary', display: 'inline' }}
-                      >
-                        Total Comments:&nbsp;
-                      </Typography>
-                      {item.totalReplies}
-                      <br />
-                      Market Cap:&nbsp; 
-                    <NumericFormat
-                      value={item.tokenDetails?.usd_market_cap}
-                      prefix="$"
-                      decimalScale={2} 
-                      thousandSeparator
-                    />
-                    </React.Fragment>
-  
-                  }
-                />
-              </ListItem>
-            ))}
+          <List sx={{ p:0, width: '100%', bgcolor: 'background.paper' }}>
+          {data.map((item) => {
+              const primaryFloatRightText= <>Total Comments:&nbsp;{item.totalReplies}</>
+              const secondaryText= <>Market Cap:&nbsp; 
+              <NumericFormat
+                style={{backgroundColor:backgroundColor, width: "70px", textAlign: "right"}}
+                value={item.tokenDetails?.usd_market_cap}
+                decimalScale={2} 
+                thousandSeparator
+              /></>;
+
+              return ( <AvatarCardListItem 
+                  itemId={item._id}
+                  tokenSymbolAndNameText={item.tokenDetails?.symbol+"  —  "+item.tokenDetails?.name }
+                  tokenImageUri={item.tokenDetails?.image_uri}
+                  primaryFloatRightText={primaryFloatRightText}
+                  secondaryFloatRightText={secondaryText}
+                  secondaryFloatLeftText=""
+                >
+                </AvatarCardListItem>
+              )
+            })}
           </List>
         </CardContent>
       </Card>
