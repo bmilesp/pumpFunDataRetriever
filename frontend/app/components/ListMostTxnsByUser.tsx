@@ -53,10 +53,9 @@ const fetchData = async (endpoint:string, params:any) => {
             {data.map((item) => {
               const primaryFloatRightText= <>Total Txns:&nbsp;
               <NumericFormat
-                style={{backgroundColor:backgroundColor, width: "80px", textAlign: "right"}}
+                style={{backgroundColor:backgroundColor, width: "60px", textAlign: "right"}}
                 value={item.totalTxns}
                 decimalScale={2} 
-                suffix=" SOL"
                 thousandSeparator
               />
               </>

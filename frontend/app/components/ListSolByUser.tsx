@@ -54,7 +54,7 @@ const fetchData = async (endpoint:string, params:any) => {
             
               const primaryFloatRightText= <>Total SOL:&nbsp; 
               <NumericFormat
-                style={{backgroundColor:backgroundColor, width: "40px", textAlign: "right"}}
+                style={{backgroundColor:backgroundColor, width: "80px", textAlign: "right"}}
                 value={item.totalSolAmount / 10**9}
                 decimalScale={2} 
                 thousandSeparator
@@ -69,7 +69,7 @@ const fetchData = async (endpoint:string, params:any) => {
               /></>;
               const secondaryLeftText= <>Average SOL per Txn:&nbsp; 
               <NumericFormat
-                style={{backgroundColor:backgroundColor, width: "40px", textAlign: "right"}}
+                style={{backgroundColor:backgroundColor, textAlign: "left"}}
                 value={item.averageSolAmount / 10**9}
                 decimalScale={3} 
                 thousandSeparator
@@ -79,7 +79,7 @@ const fetchData = async (endpoint:string, params:any) => {
                   itemId={item._id}
                   key={endpoint+item._id}
                   linkToPrefix="https://solscan.io/account/"
-                  title={item._id}
+                  title={item._id.substring(0, 6)}
                   tokenImageUri={item.tokenDetails?.image_uri}
                   primaryFloatRightText={primaryFloatRightText}
                   secondaryFloatRightText={secondaryText}

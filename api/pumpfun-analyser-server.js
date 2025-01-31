@@ -179,7 +179,6 @@ app.get("/topDumpsByDateRange", async (req, res) => {
 app.get("/topMostTxnsByUser", async (req, res) => {
   try {
     const { startTimestamp, endTimestamp } = req.query;
-    console.log(Number(startTimestamp), Number(endTimestamp));
     const pipeline = [
       { $match: { created_timestamp: { $gte: Number(startTimestamp), $lte: Number(endTimestamp) } } },
       { $group: { _id: "$user", totalTxns: { $sum: 1 }, totalSolAmount: { $sum: "$signed_sol_amount" }, averageSolAmount: {$avg: "$signed_sol_amount"} } },
@@ -213,7 +212,6 @@ app.get("/mostSolByUser", async (req, res) => {
 app.get("/leastSolByUser", async (req, res) => {
   try {
     const { startTimestamp, endTimestamp } = req.query;
-    console.log(Number(startTimestamp), Number(endTimestamp));
     const pipeline = [
       { $match: { created_timestamp: { $gte: Number(startTimestamp), $lte: Number(endTimestamp) } } },
       { $group: { _id: "$user", totalTxns: { $sum: 1 }, totalSolAmount: { $sum: "$signed_sol_amount" }, averageSolAmount: {$avg: "$signed_sol_amount"} } },
@@ -226,7 +224,6 @@ app.get("/leastSolByUser", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

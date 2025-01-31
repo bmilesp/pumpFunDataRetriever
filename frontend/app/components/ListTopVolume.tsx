@@ -54,7 +54,7 @@ const fetchData = async (endpoint:string, params:any) => {
           <Typography variant="h4" gutterBottom>
             {title}
           </Typography>
-          <List style={{backgroundColor:backgroundColor}} sx={{ p:"0 30px 0 0", width: '100%', bgcolor: 'background.paper' }}>
+          <List style={{backgroundColor:backgroundColor}} sx={{ p:0, width: '100%', bgcolor: 'background.paper' }}>
             {data.map((item) => {
               const secondaryFloatLeftText= <>AVG Sale (SOL):&nbsp; 
               <NumericFormat

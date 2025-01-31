@@ -57,16 +57,16 @@ const fetchData = async (endpoint:string, params:any) => {
           {data.map((item) => {
               const primaryFloatRightText= <>Total Dumped:&nbsp;
               <NumericFormat
-                style={{backgroundColor:backgroundColor, width: "80px", textAlign: "right"}}
+                style={{backgroundColor:backgroundColor, width: "120px", textAlign: "right"}}
                 value={item.totalSolAmount / 10**9}
                 decimalScale={2} 
                 suffix=" SOL"
                 thousandSeparator
               />
               </>
-              const secondaryText= <> AVG Sale (SOL)::&nbsp; 
+              const secondaryText= <> AVG Sale (SOL):&nbsp; 
              <NumericFormat
-                style={{backgroundColor:backgroundColor, width: "40px", textAlign: "right"}}
+                style={{backgroundColor:backgroundColor, width: "60px", textAlign: "right"}}
                 value={item.averageSolAmount / 10**9}
                 decimalScale={2} 
                 thousandSeparator
