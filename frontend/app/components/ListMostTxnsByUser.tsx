@@ -77,8 +77,9 @@ const fetchData = async (endpoint:string, params:any) => {
 
               return ( <AvatarCardListItem 
                   itemId={item._id}
+                  key={endpoint+item._id}
                   linkToPrefix="https://solscan.io/account/"
-                  tokenSymbolAndNameText={item._id}
+                  title={item._id.substring(0,6)}
                   tokenImageUri={item.tokenDetails?.image_uri}
                   primaryFloatRightText={primaryFloatRightText}
                   secondaryFloatRightText={secondaryText}

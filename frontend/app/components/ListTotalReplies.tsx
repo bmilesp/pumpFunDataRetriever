@@ -65,7 +65,8 @@ const ListTotalReplies = ({title, endpoint, startTimestamp, endTimestamp, backgr
 
               return ( <AvatarCardListItem 
                   itemId={item._id}
-                  tokenSymbolAndNameText={item.tokenDetails?.symbol+"  —  "+item.tokenDetails?.name }
+                  key={endpoint+item._id}
+                  title={item.tokenDetails?.symbol+"  —  "+item.tokenDetails?.name }
                   tokenImageUri={item.tokenDetails?.image_uri}
                   primaryFloatRightText={primaryFloatRightText}
                   secondaryFloatRightText={secondaryText}

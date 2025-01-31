@@ -1,10 +1,9 @@
-import { Avatar, Card, CardContent, Grid2, List, ListItem, ListItemAvatar, ListItemText, Typography } from "@mui/material";
+import { Avatar, Grid2, ListItem, ListItemAvatar, Typography } from "@mui/material";
 import React from "react";
-import { NumericFormat } from "react-number-format";
 
 const AvatarCardListItem = ({
     itemId = "", 
-    tokenSymbolAndNameText = "",
+    title = "",
     tokenImageUri = "",
     primaryFloatRightText,
     secondaryFloatLeftText,
@@ -14,38 +13,32 @@ const AvatarCardListItem = ({
 
     return (
 
-        <ListItem sx={{p:0}} component="a" href={linkToPrefix+itemId} target="_blank" alignItems="flex-start"  key={itemId+tokenSymbolAndNameText}>
-        <ListItemAvatar>
-            <Avatar alt={tokenSymbolAndNameText} src={tokenImageUri} />
-        </ListItemAvatar>
-        <ListItemText
-            primary={
-            <React.Fragment>
-                <Grid2 container justifyContent="space-between">
-                    <Grid2>
-                        {tokenSymbolAndNameText }
+        <ListItem sx={{p:0}} component="a" href={linkToPrefix+itemId} target="_blank" >
+            <ListItemAvatar>
+                <Avatar alt={title} src={tokenImageUri} />
+            </ListItemAvatar>
+            <Grid2 size={12} sx={{mb:1}} container justifyContent="space-between">
+                <Grid2 container size={12} justifyContent="space-between">
+                    <Grid2 size={8} alignItems={"end"} >
+                        <Typography variant="h6" >
+                        {title}
+                        </Typography>
+                    </Grid2>
+                    <Grid2 size={4} style={{textAlign: "right"}}>
+                        <Typography variant="h6" >
+                            {primaryFloatRightText}
+                        </Typography>
+                    </Grid2>
+                </Grid2>
+                <Grid2 container size={12} justifyContent="space-between">
+                    <Grid2 >
+                        {secondaryFloatLeftText}    
                     </Grid2>
                     <Grid2 alignItems="right">
-                            {primaryFloatRightText}
+                        {secondaryFloatRightText}
                     </Grid2>
                 </Grid2>
-            </React.Fragment>
-            
-            }
-            secondary={
-            <React.Fragment>
-                <Grid2 container justifyContent="space-between">
-                <Grid2 >
-                    {secondaryFloatLeftText}    
-                </Grid2>
-                <Grid2 alignItems="right">
-                    {secondaryFloatRightText}
-                </Grid2>
-                </Grid2>
-            </React.Fragment>
-
-            }
-        />
+            </Grid2>
         </ListItem>
     )
 
