@@ -193,24 +193,15 @@ app.get("/topMostTxnsByUser", async (req, res) => {
   }
 });
 
-app.get("/topMostPumpByUser", async (req, res) => {
+app.get("/mostSolByUser", async (req, res) => {
   try {
     const { startTimestamp, endTimestamp } = req.query;
+    console.log(Number(startTimestamp), Number(endTimestamp));
     const pipeline = [
       { $match: { created_timestamp: { $gte: Number(startTimestamp), $lte: Number(endTimestamp) } } },
-      { $group: { _id: "$user", totalSolAmount: { $sum: "$signed_sol_amount" }, averageSolAmount: {$avg: "$signed_sol_amount"} } },
+      { $group: { _id: "$user", totalTxns: { $sum: 1 }, totalSolAmount: { $sum: "$signed_sol_amount" }, averageSolAmount: {$avg: "$signed_sol_amount"} } },
       { $sort: { totalSolAmount: -1 } },
       { $limit: 10 },
-      {
-        $lookup: {
-          from: "tokens",        // Collection to join
-          localField: "_id",     // Field from the grouped result ("mint" is now `_id`)
-          foreignField: "mint",  // Field in the "tokens" collection (adjust based on your schema)
-          pipeline: [ {$project: {name: 1, symbol:1, image_uri:1, usd_market_cap:1} } ],
-          as: "tokenDetails"     // Output array field for joined documents
-        }
-      },
-      { $unwind: "$tokenDetails" },
     ];
     const results = await fetchData("transactions", pipeline);
     res.json(results);
@@ -219,24 +210,15 @@ app.get("/topMostPumpByUser", async (req, res) => {
   }
 });
 
-app.get("/topMostDumpByUser", async (req, res) => {
+app.get("/leastSolByUser", async (req, res) => {
   try {
     const { startTimestamp, endTimestamp } = req.query;
+    console.log(Number(startTimestamp), Number(endTimestamp));
     const pipeline = [
       { $match: { created_timestamp: { $gte: Number(startTimestamp), $lte: Number(endTimestamp) } } },
-      { $group: { _id: "$user", totalSolAmount: { $sum: "$signed_sol_amount" }, averageSolAmount: {$avg: "$signed_sol_amount"} } },
+      { $group: { _id: "$user", totalTxns: { $sum: 1 }, totalSolAmount: { $sum: "$signed_sol_amount" }, averageSolAmount: {$avg: "$signed_sol_amount"} } },
       { $sort: { totalSolAmount: 1 } },
       { $limit: 10 },
-      {
-        $lookup: {
-          from: "tokens",        // Collection to join
-          localField: "_id",     // Field from the grouped result ("mint" is now `_id`)
-          foreignField: "mint",  // Field in the "tokens" collection (adjust based on your schema)
-          pipeline: [ {$project: {name: 1, symbol:1, image_uri:1, usd_market_cap:1} } ],
-          as: "tokenDetails"     // Output array field for joined documents
-        }
-      },
-      { $unwind: "$tokenDetails" },
     ];
     const results = await fetchData("transactions", pipeline);
     res.json(results);

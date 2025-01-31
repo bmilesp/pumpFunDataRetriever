@@ -25,6 +25,7 @@ import ListTopPumps from './components/ListTopPumps';
 import ListTopVolume from './components/ListTopVolume';
 import ListMosstTxnsByUser from './components/ListMostTxnsByUser';
 import ListMostTxnsByUser from './components/ListMostTxnsByUser';
+import ListMostSolByUser from './components/ListMostSolByUser';
 
 const theme = createTheme({
   palette: {
@@ -140,7 +141,7 @@ const App = () => {
         <Grid2 container spacing={1} style={{ marginTop: "10px" }}>
           <Grid2 size={{ xs: 12, md: 6 }} key={"topDumpsByDateRange"}>
             <ListTopDumps
-              title="Top Dumps"
+              title="Coin — Top Dumps"
               endpoint="topDumpsByDateRange"
               startTimestamp={startTimestamp}
               endTimestamp={endTimestamp}
@@ -149,7 +150,7 @@ const App = () => {
           </Grid2>
           <Grid2 size={{ xs: 12, md: 6 }} key={"topPumpsByDateRange"}>
             <ListTopPumps
-              title="Top Pumps"
+              title="Coin — Top Pumps"
               endpoint="topPumpsByDateRange"
               startTimestamp={startTimestamp}
               endTimestamp={endTimestamp}
@@ -158,7 +159,7 @@ const App = () => {
           </Grid2>
           <Grid2 size={{ xs: 12, md: 6 }} key={"topTotalReplies"}>
             <ListTotalReplies
-              title="Most Comments"
+              title="Coin — Most Comments"
               endpoint="topMintsByTotalCommentsAndDateRange"
               startTimestamp={startTimestamp}
               endTimestamp={endTimestamp}
@@ -167,7 +168,7 @@ const App = () => {
           </Grid2>
           <Grid2 size={{ xs: 12, md: 6 }} key={"topTotalRepliesAllTime"}>
             <ListTotalReplies
-              title="Most Comments - All Time"
+              title="Coin — Most Comments - All Time"
               endpoint="topMintsByTotalComments"
               startTimestamp={startTimestamp}
               endTimestamp={endTimestamp}
@@ -176,7 +177,7 @@ const App = () => {
           </Grid2>
           <Grid2 size={{ xs: 12, md: 6 }} key={"topMintsByVolumeAndDateRange"}>
             <ListTopVolume
-              title="Most Volume"
+              title="Coin — Most Volume"
               endpoint="topMintsByVolumeAndDateRange"
               startTimestamp={startTimestamp}
               endTimestamp={endTimestamp}
@@ -185,11 +186,20 @@ const App = () => {
           </Grid2>
           <Grid2 size={{ xs: 12, md: 6 }} key={"topMostTxnsByUser"}>
             <ListMostTxnsByUser
-              title="Most Txns By User"
+              title="User — Most Volume"
               endpoint="topMostTxnsByUser"
               startTimestamp={startTimestamp}
               endTimestamp={endTimestamp}
               backgroundColor={"#fff"}
+            />
+          </Grid2>
+          <Grid2 size={{ xs: 12, md: 6 }} key={"mostSolByUser"}>
+            <ListMostSolByUser
+              title="User — Moon"
+              endpoint="mostSolByUser"
+              startTimestamp={startTimestamp}
+              endTimestamp={endTimestamp}
+              backgroundColor={"#b3ffb8"}
             />
           </Grid2>
         </Grid2>

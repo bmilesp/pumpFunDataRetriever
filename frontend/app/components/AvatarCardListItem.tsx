@@ -6,9 +6,9 @@ const AvatarCardListItem = ({
     itemId = "", 
     tokenSymbolAndNameText = "",
     tokenImageUri = "",
-    primaryFloatRightText = {},
-    secondaryFloatLeftText = {},
-    secondaryFloatRightText = {},
+    primaryFloatRightText,
+    secondaryFloatLeftText,
+    secondaryFloatRightText,
     linkToPrefix = "https://pump.fun/coin/"
 }) => {
 
@@ -22,16 +22,12 @@ const AvatarCardListItem = ({
             primary={
             <React.Fragment>
                 <Grid2 container justifyContent="space-between">
-                <Grid2>
-                    <Typography>
-                    {tokenSymbolAndNameText }
-                    </Typography>
-                </Grid2>
-                <Grid2 alignItems="right">
-                    <Typography>
-                        {primaryFloatRightText}
-                    </Typography>
-                </Grid2>
+                    <Grid2>
+                        {tokenSymbolAndNameText }
+                    </Grid2>
+                    <Grid2 alignItems="right">
+                            {primaryFloatRightText}
+                    </Grid2>
                 </Grid2>
             </React.Fragment>
             
@@ -40,14 +36,10 @@ const AvatarCardListItem = ({
             <React.Fragment>
                 <Grid2 container justifyContent="space-between">
                 <Grid2 >
-                    <Typography  variant="body2">
                     {secondaryFloatLeftText}    
-                    </Typography>
                 </Grid2>
                 <Grid2 alignItems="right">
-                <Typography variant="body2">
                     {secondaryFloatRightText}
-                </Typography>  
                 </Grid2>
                 </Grid2>
             </React.Fragment>
